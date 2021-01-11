@@ -133,7 +133,7 @@ public class BaseDevTest {
       Process p = Runtime.getRuntime().exec(cmd);
       p.waitFor(5, TimeUnit.SECONDS);
       if (p.exitValue() != 0) {
-          error("Error running command:" + cmd + ", return value=" + p.exitValue());
+          System.err.println("Error running command:" + cmd + ", return value=" + p.exitValue());
       } else {
           result = readStdOut(p);
       }
