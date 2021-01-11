@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.InputStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -116,8 +117,8 @@ public class BaseDevTest {
       writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
       // check that the server has started
-      Thread.sleep(15000);
-      assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
+      Thread.sleep(25000);
+      assertTrue("XXX", verifyLogMessageExists("CWWKF0011I", 220000));
       if (isDevMode) {
          assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
       }
@@ -126,6 +127,33 @@ public class BaseDevTest {
       targetDir = new File(tempProj, "target");
       assertTrue(targetDir.exists());
    }
+
+   private String runCmd(String cmd) throws IOException, InterruptedException {
+      String result = null;
+      Process p = Runtime.getRuntime().exec(cmd);
+      p.waitFor(5, TimeUnit.SECONDS);
+      if (p.exitValue() != 0) {
+          error("Error running command:" + cmd + ", return value=" + p.exitValue());
+      } else {
+          result = readStdOut(p);
+      }
+      return result;
+   }
+
+   protected String readStdOut(Process p) throws IOException, InterruptedException {
+      String result = null;
+      // Read all the output on stdout and return it to the caller
+      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      String line;
+      StringBuffer allLines = new StringBuffer();
+      while ((line = in.readLine())!= null) {
+          allLines.append(line).append(" ");
+      }
+      if (allLines.length() > 0) {
+          result = allLines.toString();
+      }
+      return result;
+  }
 
    protected static void cleanUpAfterClass() throws Exception {
       cleanUpAfterClass(true);
