@@ -81,8 +81,8 @@ public class BaseDevTest {
       assertTrue(tempProj.listFiles().length > 0);
 
       logFile = new File(basicDevProj, "logFile.txt");
-      Runtime.getRuntime().exec("ls -al "+projectRoot);
-      assertTrue(logFile.createNewFile());
+      String e = runCmd("ls -al "+projectRoot);
+      assertTrue(e, logFile.createNewFile());
 
       pom = new File(tempProj, "pom.xml");
       assertTrue(pom.exists());
@@ -121,6 +121,7 @@ public class BaseDevTest {
       String e = runCmd("id");
       e += runCmd("pwd");
       e += runCmd("ls -la");
+      e += "logFile name=" + logFile.getName() + "\n"; 
       e += runCmd("ls -l" + logFile.getName());
       assertTrue(e, verifyLogMessageExists("CWWKF0011I", 220000));
       if (isDevMode) {
@@ -151,7 +152,7 @@ public class BaseDevTest {
       String line;
       StringBuffer allLines = new StringBuffer();
       while ((line = in.readLine())!= null) {
-          allLines.append(line).append(" ");
+          allLines.append(line).append("\n");
       }
       if (allLines.length() > 0) {
           result = allLines.toString();
