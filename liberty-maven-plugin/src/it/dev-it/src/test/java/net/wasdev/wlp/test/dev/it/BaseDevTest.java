@@ -116,7 +116,7 @@ public class BaseDevTest {
       writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
       // check that the server has started
-      Thread.sleep(5000);
+      Thread.sleep(15000);
       assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
       if (isDevMode) {
          assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
