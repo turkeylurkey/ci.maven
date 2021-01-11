@@ -80,6 +80,7 @@ public class BaseDevTest {
       assertTrue(tempProj.listFiles().length > 0);
 
       logFile = new File(basicDevProj, "logFile.txt");
+      System.exec("ls -al "+projectRoot);
       assertTrue(logFile.createNewFile());
 
       pom = new File(tempProj, "pom.xml");

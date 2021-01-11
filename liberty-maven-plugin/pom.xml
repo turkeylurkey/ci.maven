@@ -84,7 +84,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.12</version>
+            <version>1.8.13-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
@@ -203,7 +203,7 @@
                 <runtimeKernelId>wlp-kernel</runtimeKernelId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
-            <!-- TEMPORARILY EXCLUDE dev-it for all platforms until issue 1048 is resolved. -->
+            <!-- TEMPORARILY EXCLUDE dev-it for all platforms until issue 1048 is resolved. ++>
             <build>
                 <pluginManagement>
                     <plugins>
@@ -219,6 +219,7 @@
                     </plugins>
                 </pluginManagement>
             </build>
+            <!++ TEMPORARILY EXCLUDE dev-it for all platforms until issue 1048 is resolved. -->
         </profile>
         <profile>
             <id>ol-its</id>
@@ -243,8 +244,9 @@
                             <artifactId>maven-invoker-plugin</artifactId>
                             <configuration>
                                 <pomExcludes>
-            <!-- TEMPORARILY EXCLUDE dev-it for all platforms until issue 1048 is resolved. -->
+            <!-- TEMPORARILY EXCLUDE dev-it for all platforms until issue 1048 is resolved. ++>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
+            <!++ TEMPORARILY EXCLUDE dev-it for all platforms until issue 1048 is resolved. -->
                                     <pomExclude>basic-it/pom.xml</pomExclude>
                                     <pomExclude>assembly-it/pom.xml</pomExclude>
                                     <pomExclude>assembly-with-code-it/pom.xml</pomExclude>

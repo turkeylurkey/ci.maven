@@ -41,13 +41,19 @@ public class RunTest extends BaseDevTest {
    public static void setUpBeforeClass() throws Exception {
       URL = "http://localhost:9080/dev-sample-proj-1.0-SNAPSHOT/servlet";
       setUpBeforeClass(null, false);
+      System.out.println("........0");
+      System.exec("id");
+      System.exec("pwd");
+      System.exec("ls -lda");
+      System.exec("java -version");
    }
 
    @Test
    public void endpointTest() throws Exception {
+         System.out.println("........1");
          HttpClient client = new HttpClient();
 
-        GetMethod method = new GetMethod(URL);
+         GetMethod method = new GetMethod(URL);
          try {
             int statusCode = client.executeMethod(method);
 
