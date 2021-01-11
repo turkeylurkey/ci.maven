@@ -42,10 +42,10 @@ public class RunTest extends BaseDevTest {
       URL = "http://localhost:9080/dev-sample-proj-1.0-SNAPSHOT/servlet";
       setUpBeforeClass(null, false);
       System.out.println("........0");
-      System.exec("id");
-      System.exec("pwd");
-      System.exec("ls -lda");
-      System.exec("java -version");
+      Runtime.getRuntime().exec("id");
+      Runtime.getRuntime().exec("pwd");
+      Runtime.getRuntime().exec("ls -lda");
+      Runtime.getRuntime().exec("java -version");
    }
 
    @Test
