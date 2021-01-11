@@ -122,7 +122,8 @@ public class BaseDevTest {
       e += runCmd("pwd");
       e += runCmd("ls -la");
       e += "logFile name=" + logFile.getPath() + "\n"; 
-      e += runCmd("ls -l" + logFile.getPath());
+      e += runCmd("ls -l " + logFile.getPath());
+      System.out.println(e);
       assertTrue(e, verifyLogMessageExists("CWWKF0011I", 220000));
       if (isDevMode) {
          assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
