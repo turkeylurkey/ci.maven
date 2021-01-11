@@ -39,13 +39,13 @@ public class RunTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      URL = "http://localhost:9080/dev-sample-proj-1.0-SNAPSHOT/servlet";
-      setUpBeforeClass(null, false);
       System.out.println("........0");
       Runtime.getRuntime().exec("id");
       Runtime.getRuntime().exec("pwd");
       Runtime.getRuntime().exec("ls -lda");
       Runtime.getRuntime().exec("java -version");
+      URL = "http://localhost:9080/dev-sample-proj-1.0-SNAPSHOT/servlet";
+      setUpBeforeClass(null, false);
    }
 
    @Test
