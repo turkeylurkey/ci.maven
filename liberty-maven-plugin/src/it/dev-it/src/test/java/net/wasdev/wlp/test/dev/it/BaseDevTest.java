@@ -121,8 +121,9 @@ public class BaseDevTest {
       String e = runCmd("id");
       e += runCmd("pwd");
       e += runCmd("ls -la");
-      e += "logFile name=" + logFile.getPath() + "\n"; 
+      e += "logFile name=" + logFile.getPath() + "\n";
       e += runCmd("ls -l " + logFile.getPath());
+      e += runCmd("cat " + logFile.getPath());
       System.out.println(e);
       assertTrue(e, verifyLogMessageExists("CWWKF0011I", 220000));
       if (isDevMode) {
