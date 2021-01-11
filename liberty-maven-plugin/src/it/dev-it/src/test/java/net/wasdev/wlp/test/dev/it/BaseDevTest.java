@@ -123,6 +123,7 @@ public class BaseDevTest {
       e += runCmd("ls -la");
       e += "logFile name=" + logFile.getPath() + "\n";
       e += runCmd("ls -l " + logFile.getPath());
+      e += "cat " + logFile.getPath() + "\n";
       e += runCmd("cat " + logFile.getPath());
       System.out.println(e);
       assertTrue(e, verifyLogMessageExists("CWWKF0011I", 220000));
@@ -140,9 +141,10 @@ public class BaseDevTest {
       Process p = Runtime.getRuntime().exec(cmd);
       p.waitFor(5, TimeUnit.SECONDS);
       if (p.exitValue() != 0) {
-          System.err.println("Error running command:" + cmd + ", return value=" + p.exitValue());
+         System.err.println("Error running command:" + cmd + ", return value=" + p.exitValue());
+         result = "Error running command:" + cmd + ", return value=" + p.exitValue();
       } else {
-          result = readStdOut(p);
+         result = readStdOut(p);
       }
       return result;
    }
