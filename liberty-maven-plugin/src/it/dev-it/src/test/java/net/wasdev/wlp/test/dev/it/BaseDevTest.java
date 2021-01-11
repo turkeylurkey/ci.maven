@@ -118,7 +118,11 @@ public class BaseDevTest {
 
       // check that the server has started
       Thread.sleep(25000);
-      assertTrue("XXX", verifyLogMessageExists("CWWKF0011I", 220000));
+      String e = runCmd("id");
+      e += runCmd("pwd");
+      e += runCmd("ls -la");
+      e += runCmd("ls -l" + logFile.getName())
+      assertTrue(e, verifyLogMessageExists("CWWKF0011I", 220000));
       if (isDevMode) {
          assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
       }
