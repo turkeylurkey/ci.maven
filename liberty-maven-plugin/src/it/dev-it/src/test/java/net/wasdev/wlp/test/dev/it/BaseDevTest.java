@@ -125,6 +125,7 @@ public class BaseDevTest {
       e += runCmd("ls -l " + logFile.getPath());
       e += "cat " + logFile.getPath() + "\n";
       e += runCmd("cat " + logFile.getPath());
+      e += "Done";
       System.out.println(e);
       assertTrue(e, verifyLogMessageExists("CWWKF0011I", 220000));
       if (isDevMode) {
