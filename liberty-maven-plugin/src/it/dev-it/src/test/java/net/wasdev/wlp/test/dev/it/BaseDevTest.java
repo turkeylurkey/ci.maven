@@ -121,6 +121,10 @@ public class BaseDevTest {
       String e = runCmd("id");
       e += runCmd("pwd");
       e += runCmd("ls -la");
+      e += "pom file name=" + pom.getPath() + "\n";
+      e += runCmd("ls -l " + pom.getPath());
+      e += "cat " + pom.getPath() + "\n";
+      e += runCmd("cat " + pom.getPath());
       e += "logFile name=" + logFile.getPath() + "\n";
       e += runCmd("ls -l " + logFile.getPath());
       e += "cat " + logFile.getPath() + "\n";
