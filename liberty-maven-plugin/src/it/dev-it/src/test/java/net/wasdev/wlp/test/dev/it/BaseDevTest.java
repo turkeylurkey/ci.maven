@@ -152,7 +152,7 @@ public class BaseDevTest {
          } else {
             result = readStdOut(p);
          }
-      } catch (IllegalThreadStateException) {
+      } catch (IllegalThreadStateException x) {
          result = "Error command is still running after 50s:" + cmd);
       }
       return result;
