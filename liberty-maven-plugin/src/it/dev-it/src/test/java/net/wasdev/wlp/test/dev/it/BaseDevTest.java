@@ -144,12 +144,16 @@ public class BaseDevTest {
    private static String runCmd(String cmd) throws IOException, InterruptedException {
       String result = null;
       Process p = Runtime.getRuntime().exec(cmd);
-      p.waitFor(5, TimeUnit.SECONDS);
-      if (p.exitValue() != 0) {
-         System.err.println("Error running command:" + cmd + ", return value=" + p.exitValue());
-         result = "Error running command:" + cmd + ", return value=" + p.exitValue();
-      } else {
-         result = readStdOut(p);
+      p.waitFor(50, TimeUnit.SECONDS);
+      try {
+         if (p.exitValue() != 0) {
+            System.err.println("Error running command:" + cmd + ", return value=" + p.exitValue());
+            result = "Error running command:" + cmd + ", return value=" + p.exitValue();
+         } else {
+            result = readStdOut(p);
+         }
+      } catch (IllegalThreadStateException) {
+         result = "Error command is still running after 50s:" + cmd);
       }
       return result;
    }
