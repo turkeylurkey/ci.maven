@@ -221,6 +221,8 @@ public class BaseDevTest {
       e += "srcHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       e += "targetHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
       e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
+      e += "HelloWorld.java:\n";
+      e += runCmd("cmd /c type " + srcHelloWorld.getPath());
       e += runCmd("cmd /c dir " + targetHelloWorld.getPath());
 
       long lastModified = targetHelloWorld.lastModified();
@@ -232,6 +234,8 @@ public class BaseDevTest {
       javaWriter.close();
       e += "srcHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
       e += "srcHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
+      e += "HelloWorld.java:\n";
+      e += runCmd("cmd /c type " + srcHelloWorld.getPath());
       Thread.sleep(5000); // wait for compilation
       e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       Thread.sleep(5000); // wait for compilation
