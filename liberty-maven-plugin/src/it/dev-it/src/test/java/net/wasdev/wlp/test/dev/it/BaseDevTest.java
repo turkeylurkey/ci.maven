@@ -141,7 +141,7 @@ public class BaseDevTest {
       assertTrue(targetDir.exists());
    }
 
-   private static String runCmd(String cmd) throws IOException, InterruptedException {
+   public static String runCmd(String cmd) throws IOException, InterruptedException {
       String result = null;
       Process p = Runtime.getRuntime().exec(cmd);
       p.waitFor(50, TimeUnit.SECONDS);
@@ -158,7 +158,7 @@ public class BaseDevTest {
       return result;
    }
 
-   private static String readStdOut(Process p) throws IOException, InterruptedException {
+   public static String readStdOut(Process p) throws IOException, InterruptedException {
       String result = null;
       // Read all the output on stdout and return it to the caller
       BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
