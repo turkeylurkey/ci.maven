@@ -215,6 +215,8 @@ public class BaseDevTest {
       File targetHelloWorld = new File(targetDir, "classes/com/demo/HelloWorld.class");
       assertTrue(srcHelloWorld.exists());
       assertTrue(targetHelloWorld.exists());
+      String e = runCmd("id");
+      e += runCmd("1. ls -l " + "classes/com/demo/HelloWorld.class");
 
       long lastModified = targetHelloWorld.lastModified();
       String str = "// testing";
@@ -223,10 +225,13 @@ public class BaseDevTest {
       javaWriter.append(str);
 
       javaWriter.close();
-
       Thread.sleep(5000); // wait for compilation
       boolean wasModified = targetHelloWorld.lastModified() > lastModified;
-      assertTrue(wasModified);
+
+      e += runCmd("2. ls -l " + "classes/com/demo/HelloWorld.class");
+
+      System.out.println("e="+e);
+      assertTrue(e, wasModified);
    }
 
    private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
