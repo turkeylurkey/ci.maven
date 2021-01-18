@@ -171,12 +171,16 @@ public class DevTest extends BaseDevTest {
       assertTrue(systemHealthRes.exists());
       File systemHealthSrc = new File(tempProj, "/src/main/java/com/demo/SystemHealth.java");
       File systemHealthTarget = new File(targetDir, "/classes/com/demo/SystemHealth.class");
+      String e = runCmd("id");
 
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       
       assertTrue(verifyLogMessageExists("Source compilation had errors", 200000));
       assertFalse(systemHealthTarget.exists());
+      e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
+      e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
+      e += runCmd("cmd /c type " + systemHealthSrc.getPath());
       
       // add mpHealth dependency to pom.xml
       String mpHealthComment = "<!-- <dependency>\n" + 
@@ -205,7 +209,6 @@ public class DevTest extends BaseDevTest {
       Thread.sleep(1000); // wait for compilation
       assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000));
       Thread.sleep(45000); // wait for compilation
-      String e = runCmd("id");
       e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
       e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
       e += runCmd("cmd /c type " + systemHealthSrc.getPath());
