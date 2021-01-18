@@ -216,7 +216,8 @@ public class BaseDevTest {
       assertTrue(srcHelloWorld.exists());
       assertTrue(targetHelloWorld.exists());
       String e = runCmd("id");
-      e += runCmd("dir " + "classes\com\demo\HelloWorld.class");
+      e += runCmd("pwd");
+      e += runCmd("cmd /c dir " + "classes\\com\\demo\\HelloWorld.class");
 
       long lastModified = targetHelloWorld.lastModified();
       String str = "// testing";
@@ -228,7 +229,7 @@ public class BaseDevTest {
       Thread.sleep(5000); // wait for compilation
       boolean wasModified = targetHelloWorld.lastModified() > lastModified;
 
-      e += runCmd("dir " + "classes\com\demo\HelloWorld.class");
+      e += runCmd("cmd /c dir " + "classes\\com\\demo\\HelloWorld.class");
 
       System.out.println("e="+e);
       assertTrue(e, wasModified);
