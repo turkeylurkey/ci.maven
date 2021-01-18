@@ -205,7 +205,11 @@ public class DevTest extends BaseDevTest {
       Thread.sleep(1000); // wait for compilation
       assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000));
       Thread.sleep(15000); // wait for compilation
-      assertTrue(systemHealthTarget.exists());
+      String e = runCmd("id");
+      String e = runCmd("cmd /c dir " + systemHealthSrc.getPath());
+      String e = runCmd("cmd /c dir " + systemHealthTarget.getPath());
+      System.out.println("e="+e);
+      assertTrue(e, systemHealthTarget.exists());
    }
 
 }
