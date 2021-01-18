@@ -217,6 +217,8 @@ public class BaseDevTest {
       assertTrue(targetHelloWorld.exists());
       String e = runCmd("id");
       e += runCmd("pwd");
+      e += "srcHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
+      e += "srcHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       e += "targetHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
       e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       e += runCmd("cmd /c dir " + targetHelloWorld.getPath());
@@ -228,7 +230,12 @@ public class BaseDevTest {
       javaWriter.append(str);
 
       javaWriter.close();
+      e += "srcHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
+      e += "srcHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       Thread.sleep(5000); // wait for compilation
+      e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
+      Thread.sleep(5000); // wait for compilation
+      e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       boolean wasModified = targetHelloWorld.lastModified() > lastModified;
 
       e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
