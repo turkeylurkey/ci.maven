@@ -178,6 +178,7 @@ public class DevTest extends BaseDevTest {
       
       assertTrue(verifyLogMessageExists("Source compilation had errors", 200000));
       assertFalse(systemHealthTarget.exists());
+      e += "assertFalse(systemHealthTarget.exists()) SystemHealth.class not exist yet";
       e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
       e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
       e += runCmd("cmd /c type " + systemHealthSrc.getPath());
