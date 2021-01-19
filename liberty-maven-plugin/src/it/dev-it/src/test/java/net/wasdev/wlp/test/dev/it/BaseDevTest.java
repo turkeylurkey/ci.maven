@@ -253,9 +253,10 @@ public class BaseDevTest {
 
    private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
+      int lineNumber = 1;
       String line = br.readLine();
-      readLine0 = line;
-      readLine1 = line;
+      readLine0 = String.valueOf(lineNumber) + " " + line;
+      readLine1 = String.valueOf(lineNumber) + " " + line;
       try {
          while (line != null) {
             if (line.contains(str)) {
@@ -263,7 +264,7 @@ public class BaseDevTest {
             }
             line = br.readLine();
             readLine0 = readLine1;
-            readLine1 = line;
+            readLine1 = String.valueOf(++lineNumber) + " " + line;
          }
       } finally {
          br.close();
