@@ -209,8 +209,12 @@ public class DevTest extends BaseDevTest {
 
       Thread.sleep(1000); // wait for compilation
       assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000));
-      e += "Found 'Source compilation was successful'. Display the logFile:"+logFile.getPath();
+      e += "Found 'Source compilation was successful'. Display the logFile:"+logFile.getPath()+"\n";
+      e += runCmd("cmd /c dir " + logFile.getPath());
       e += runCmd("cmd /c type " + logFile.getPath());
+      e += "\nFiles.readFile(logFile):\n";
+      String actual = Files.readString(logFile.toPath());
+      e += actual+"\n";
       Thread.sleep(45000); // wait for compilation
       e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
       e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
