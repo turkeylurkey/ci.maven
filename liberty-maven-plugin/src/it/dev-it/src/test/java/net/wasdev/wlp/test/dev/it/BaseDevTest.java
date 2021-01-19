@@ -49,13 +49,13 @@ import org.junit.Test;
 
 public class BaseDevTest {
 
-   static File tempProj;
-   static File basicDevProj;
-   static File logFile;
-   static File targetDir;
-   static File pom;
-   static BufferedWriter writer;
-   static Process process;
+   public static File tempProj;
+   public static File basicDevProj;
+   public static File logFile;
+   public static File targetDir;
+   public static File pom;
+   public static BufferedWriter writer;
+   public static Process process;
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
