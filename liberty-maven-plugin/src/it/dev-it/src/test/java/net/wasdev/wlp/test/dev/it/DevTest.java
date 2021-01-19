@@ -182,7 +182,9 @@ public class DevTest extends BaseDevTest {
       e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
       e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
       e += runCmd("cmd /c type " + systemHealthSrc.getPath());
-      
+      e += "See the log file before adding valid source.\n";
+      String actual = Files.readString(logFile.toPath());
+      e += actual + "\n";
       // add mpHealth dependency to pom.xml
       String mpHealthComment = "<!-- <dependency>\n" + 
             "        <groupId>io.openliberty.features</groupId>\n" + 
@@ -212,8 +214,8 @@ public class DevTest extends BaseDevTest {
       e += "Found 'Source compilation was successful'. Display the logFile:"+logFile.getPath()+"\n";
       e += runCmd("cmd /c dir " + logFile.getPath());
       e += runCmd("cmd /c type " + logFile.getPath());
-      e += "\nFiles.readFile(logFile):\n";
-      String actual = Files.readString(logFile.toPath());
+      e += "\nSee the log file *after* adding valid source.\n";
+      actual = Files.readString(logFile.toPath());
       e += actual+"\n";
       Thread.sleep(45000); // wait for compilation
       e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
