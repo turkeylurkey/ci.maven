@@ -177,6 +177,9 @@ public class DevTest extends BaseDevTest {
       assertTrue(systemHealthSrc.exists());
       
       assertTrue(verifyLogMessageExists("Source compilation had errors", 200000));
+      e += "Found Source compilation had errors, previous line and current:\n";
+      e += readLine0+"\n";
+      e += readLine1+"\n";
       assertFalse(systemHealthTarget.exists());
       e += "assertFalse(systemHealthTarget.exists()) SystemHealth.class not exist yet";
       e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
@@ -201,6 +204,9 @@ public class DevTest extends BaseDevTest {
       replaceString(mpHealthComment, mpHealth, pom);
       
       assertTrue(verifyLogMessageExists("The following features have been installed", 100000));
+      e += "Found The following features have been installed, previous line and current:\n";
+      e += readLine0+"\n";
+      e += readLine1+"\n";
       
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));

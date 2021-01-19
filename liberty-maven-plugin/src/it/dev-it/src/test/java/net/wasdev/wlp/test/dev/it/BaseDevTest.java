@@ -56,6 +56,8 @@ public class BaseDevTest {
    public static File pom;
    public static BufferedWriter writer;
    public static Process process;
+   public static String readLine0;
+   public static String readLine1;
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
@@ -252,12 +254,16 @@ public class BaseDevTest {
    private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       String line = br.readLine();
+      readLine0 = line;
+      readLine1 = line;
       try {
          while (line != null) {
             if (line.contains(str)) {
                return true;
             }
             line = br.readLine();
+            readLine0 = readLine1;
+            readLine1 = line;
          }
       } finally {
          br.close();
