@@ -202,6 +202,9 @@ public class DevTest extends BaseDevTest {
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
       replaceString(mpHealthComment, mpHealth, pom);
+      e += "Just modified pom.xml:\n";
+      actual = Files.readString(pom.toPath());
+      e += actual+"\n";
       
       assertTrue(verifyLogMessageExists("The following features have been installed", 100000));
       e += "Found The following features have been installed, previous line and current:\n";
