@@ -191,6 +191,8 @@ public class DevTest extends BaseDevTest {
       e += "See the log file before adding valid source.\n";
       String actual = Files.readString(logFile.toPath());
       e += actual + "\n";
+      int c4 = readFile2("The following features have been installed", logFile);
+      e += "Before changing pom.xml, found 'The following features have been installed' "+c4+" times.\n";
       // add mpHealth dependency to pom.xml
       String mpHealthComment = "<!-- <dependency>\n" + 
             "        <groupId>io.openliberty.features</groupId>\n" + 
