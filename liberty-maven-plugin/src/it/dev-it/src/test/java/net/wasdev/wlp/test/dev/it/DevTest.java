@@ -163,7 +163,7 @@ public class DevTest extends BaseDevTest {
     }
    
    @Test
-   public void resolveDependencyTest() throws Exception {      
+   public void resolveDependencyTest() throws Exception {
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
       // create the HealthCheck class, expect a compilation error
@@ -176,8 +176,11 @@ public class DevTest extends BaseDevTest {
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       
-      assertTrue(verifyLogMessageExists("Source compilation had errors", 200000));
-      e += "Found Source compilation had errors, previous line and current:\n";
+      boolean b1 = verifyLogMessageExists("Source compilation had errors", 200000);
+      int c1 = readFile2("Source compilation had errors", logFile);
+      e += "'Source compilation had errors' found "+c1+" times.\n";
+      assertTrue(b1);
+      e += "Found 'Source compilation had errors', 1st occurance and previous line:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
       assertFalse(systemHealthTarget.exists());
@@ -206,8 +209,11 @@ public class DevTest extends BaseDevTest {
       actual = Files.readString(pom.toPath());
       e += actual+"\n";
       
-      assertTrue(verifyLogMessageExists("The following features have been installed", 100000));
-      e += "Found The following features have been installed, previous line and current:\n";
+      boolean b2 = verifyLogMessageExists("The following features have been installed", 100000);
+      int c2 = readFile2("The following features have been installed", logFile);
+      e += "Found 'The following features have been installed' "+c2+" times.\n";
+      assertTrue(b2);
+      e += "Found 'The following features have been installed', previous line and current:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
       
@@ -219,8 +225,11 @@ public class DevTest extends BaseDevTest {
       javaWriter.close();
 
       Thread.sleep(1000); // wait for compilation
-      assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000));
-      e += "Found Source compilation was successful, previous line and current:\n";
+      boolean b3 = verifyLogMessageExists("Source compilation was successful.", 100000);
+      int c3 = readFile2("Source compilation was successful.", logFile);
+      e += "Found 'Source compilation was successful' "+c3+" times.\n";
+      assertTrue(b3);
+      e += "Found 'Source compilation was successful', previous line and current:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
       e += "Found 'Source compilation was successful'. Display the logFile:"+logFile.getPath()+"\n";

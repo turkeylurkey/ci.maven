@@ -272,6 +272,23 @@ public class BaseDevTest {
       return false;
    }
 
+   public static int readFile2(String str, File file) throws FileNotFoundException, IOException {
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      int foundCount = 0;
+      String line = br.readLine();
+      try {
+         while (line != null) {
+            if (line.contains(str)) {
+               ++foundCount;
+            }
+            line = br.readLine();
+         }
+      } finally {
+         br.close();
+      }
+      return foundCount;
+   }
+
    private static ProcessBuilder buildProcess(String processCommand) {
       ProcessBuilder builder = new ProcessBuilder();
       builder.directory(tempProj);
