@@ -121,6 +121,7 @@ public class BaseDevTest {
       // check that the server has started
       Thread.sleep(25000);
       String e = runCmd("id");
+      e += "BaseDevTest.startProcess";
       e += runCmd("pwd");
       e += runCmd("ls -la");
       e += "pom file name=" + pom.getPath() + "\n";
@@ -219,14 +220,19 @@ public class BaseDevTest {
       assertTrue(targetHelloWorld.exists());
       String e = runCmd("id");
       e += runCmd("pwd");
+      e += "in testModifyJavaFile";
       e += "srcHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
       e += "srcHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       e += "targetHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
       e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       e += "HelloWorld.java:\n";
-      e += runCmd("cmd /c type " + srcHelloWorld.getPath());
-      e += runCmd("cmd /c dir " + targetHelloWorld.getPath());
-
+      if (System.getProperty("os.name").contains("indo")) {
+         e += runCmd("cmd /c type " + srcHelloWorld.getPath());
+         e += runCmd("cmd /c dir " + targetHelloWorld.getPath());
+      } else {
+         e += runCmd("cat " + srcHelloWorld.getPath());
+         e += runCmd("ls -l " + targetHelloWorld.getPath());
+      }      
       long lastModified = targetHelloWorld.lastModified();
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
@@ -237,7 +243,11 @@ public class BaseDevTest {
       e += "srcHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
       e += "srcHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       e += "HelloWorld.java:\n";
-      e += runCmd("cmd /c type " + srcHelloWorld.getPath());
+      if (System.getProperty("os.name").contains("indo")) {
+         e += runCmd("cmd /c type " + srcHelloWorld.getPath());
+      } else {
+         e += runCmd("cat " + srcHelloWorld.getPath());
+      }
       Thread.sleep(5000); // wait for compilation
       e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       Thread.sleep(5000); // wait for compilation
@@ -245,8 +255,11 @@ public class BaseDevTest {
       boolean wasModified = targetHelloWorld.lastModified() > lastModified;
 
       e += "targetHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
-      e += runCmd("cmd /c dir " + targetHelloWorld.getPath());
-
+      if (System.getProperty("os.name").contains("indo")) {
+         e += runCmd("cmd /c dir " + targetHelloWorld.getPath());
+      } else {
+         e += runCmd("ls -l " + targetHelloWorld.getPath());
+      }
       System.out.println("e="+e);
       assertTrue(e, wasModified);
    }

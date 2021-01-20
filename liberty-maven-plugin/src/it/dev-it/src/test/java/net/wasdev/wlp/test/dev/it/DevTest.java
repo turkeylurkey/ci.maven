@@ -166,30 +166,40 @@ public class DevTest extends BaseDevTest {
    public void resolveDependencyTest() throws Exception {
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
+      String e = runCmd("id");
+      e += "in resolveDependencyTest";
       // create the HealthCheck class, expect a compilation error
+      int c1 = readFile2("Source compilation had errors", logFile);
+      e += "Before: 'Source compilation had errors' found "+c1+" times.\n";
+
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
       File systemHealthSrc = new File(tempProj, "/src/main/java/com/demo/SystemHealth.java");
       File systemHealthTarget = new File(targetDir, "/classes/com/demo/SystemHealth.class");
-      String e = runCmd("id");
 
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       
       boolean b1 = verifyLogMessageExists("Source compilation had errors", 200000);
-      int c1 = readFile2("Source compilation had errors", logFile);
-      e += "'Source compilation had errors' found "+c1+" times.\n";
+      c1 = readFile2("Source compilation had errors", logFile);
+      e += "After: 'Source compilation had errors' found "+c1+" times.\n";
       assertTrue(b1);
       e += "Found 'Source compilation had errors', 1st occurance and previous line:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
       assertFalse(systemHealthTarget.exists());
       e += "assertFalse(systemHealthTarget.exists()) SystemHealth.class not exist yet";
-      e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
-      e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
-      e += runCmd("cmd /c type " + systemHealthSrc.getPath());
-      e += "See the log file before adding valid source.\n";
-      String actual = Files.readString(logFile.toPath());
+      if (System.getProperty("os.name").contains("indo")) {
+         e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
+         e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
+         e += runCmd("cmd /c type " + systemHealthSrc.getPath());
+      } else {
+         e += runCmd("ls -l " + systemHealthSrc.getPath());
+         e += runCmd("ls -l " + systemHealthTarget.getPath());
+         e += runCmd("cat " + systemHealthSrc.getPath());
+      }
+      e += "See the log file before updating pom.xml.\n";
+      String actual = new String(Files.readAllBytes(logFile.toPath()));
       e += actual + "\n";
       int c4 = readFile2("The following features have been installed", logFile);
       e += "Before changing pom.xml, found 'The following features have been installed' "+c4+" times.\n";
@@ -207,18 +217,20 @@ public class DevTest extends BaseDevTest {
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
       replaceString(mpHealthComment, mpHealth, pom);
-      e += "Just modified pom.xml:\n";
-      actual = Files.readString(pom.toPath());
-      e += actual+"\n";
       
       boolean b2 = verifyLogMessageExists("The following features have been installed", 100000);
       int c2 = readFile2("The following features have been installed", logFile);
-      e += "Found 'The following features have been installed' "+c2+" times.\n";
+      e += "After changing pom.xml, found 'The following features have been installed' "+c2+" times.\n";
+      e += "Just modified pom.xml, new file:\n";
+      actual = new String(Files.readAllBytes(pom.toPath()));
+      e += actual+"\n";
       assertTrue(b2);
       e += "Found 'The following features have been installed', previous line and current:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
       
+      int c3 = readFile2("Source compilation was successful.", logFile);
+      e += "Before: Found 'Source compilation was successful' "+c3+" times.\n";
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
       javaWriter.append(' ');
@@ -228,22 +240,33 @@ public class DevTest extends BaseDevTest {
 
       Thread.sleep(1000); // wait for compilation
       boolean b3 = verifyLogMessageExists("Source compilation was successful.", 100000);
-      int c3 = readFile2("Source compilation was successful.", logFile);
-      e += "Found 'Source compilation was successful' "+c3+" times.\n";
+      c3 = readFile2("Source compilation was successful.", logFile);
+      e += "After: Found 'Source compilation was successful' "+c3+" times.\n";
       assertTrue(b3);
       e += "Found 'Source compilation was successful', previous line and current:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
       e += "Found 'Source compilation was successful'. Display the logFile:"+logFile.getPath()+"\n";
-      e += runCmd("cmd /c dir " + logFile.getPath());
-      e += runCmd("cmd /c type " + logFile.getPath());
+      if (System.getProperty("os.name").contains("indo")) {
+         e += runCmd("cmd /c dir " + logFile.getPath());
+         e += runCmd("cmd /c type " + logFile.getPath());
+      } else {
+         e += runCmd("ls -l " + logFile.getPath());
+         e += runCmd("cat " + logFile.getPath());
+      }
       e += "\nSee the log file *after* adding valid source.\n";
-      actual = Files.readString(logFile.toPath());
+      actual = new String(Files.readAllBytes(logFile.toPath()));
       e += actual+"\n";
       Thread.sleep(45000); // wait for compilation
-      e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
-      e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
-      e += runCmd("cmd /c type " + systemHealthSrc.getPath());
+      if (System.getProperty("os.name").contains("indo")) {
+         e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
+         e += runCmd("cmd /c dir " + systemHealthTarget.getPath());
+         e += runCmd("cmd /c type " + systemHealthSrc.getPath());
+      } else {
+         e += runCmd("ls -l " + systemHealthSrc.getPath());
+         e += runCmd("ls -l " + systemHealthTarget.getPath());
+         e += runCmd("cat " + systemHealthSrc.getPath());
+      }
       System.out.println("e="+e);
       assertTrue(e, systemHealthTarget.exists());
    }
