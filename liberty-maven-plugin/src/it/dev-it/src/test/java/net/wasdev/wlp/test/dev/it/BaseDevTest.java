@@ -220,7 +220,7 @@ public class BaseDevTest {
       ProcessBuilder builder = new ProcessBuilder();
       builder.directory(tempProj);
 
-      if (isWindows())) {
+      if (isWindows()) {
          builder.command("CMD", "/C", processCommand);
       } else {
          builder.command("bash", "-c", processCommand);
