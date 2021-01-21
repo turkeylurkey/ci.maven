@@ -196,9 +196,15 @@ public class BaseDevTest {
       // shut down dev mode
       if (writer != null) {
          String e = runCmd("id");
+         String actual;
          e += "\nSee the log file *before* calling destroy.\n";
-         String actual = new String(Files.readAllBytes(logFile.toPath()));
-         e += actual+"\n";
+         if (logFile == null) e += "logFile is null\n";
+         e += "logFile path = "+logFile.toPath()+"\n";
+         e += "logFile exists="+logFile.exists()+"\n";
+         try {
+            actual = new String(Files.readAllBytes(logFile.toPath()));
+            e += actual+"\n";
+         } catch (Exception x){e += "Exception:"+e+"\n";}
          if(isDevMode) {
             writer.write("exit\n"); // trigger dev mode to shut down
          }
