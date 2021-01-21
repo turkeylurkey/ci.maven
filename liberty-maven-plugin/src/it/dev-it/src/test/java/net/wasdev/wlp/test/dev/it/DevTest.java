@@ -167,7 +167,7 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
       String e = runCmd("id");
-      e += "in resolveDependencyTest";
+      e += "in resolveDependencyTest\n";
       // create the HealthCheck class, expect a compilation error
       int c1 = readFile2("Source compilation had errors", logFile);
       e += "Before: 'Source compilation had errors' found "+c1+" times.\n";
@@ -188,7 +188,7 @@ public class DevTest extends BaseDevTest {
       e += readLine0+"\n";
       e += readLine1+"\n";
       assertFalse(systemHealthTarget.exists());
-      e += "assertFalse(systemHealthTarget.exists()) SystemHealth.class not exist yet";
+      e += "assertFalse(systemHealthTarget.exists()) SystemHealth.class not exist yet\n";
       if (System.getProperty("os.name").contains("indo")) {
          e += runCmd("cmd /c dir " + systemHealthSrc.getPath());
          e += runCmd("cmd /c dir " + systemHealthTarget.getPath());

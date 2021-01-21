@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019.
+ * (c) Copyright IBM Corporation 2019, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ public class BaseDevTest {
       // check that the server has started
       Thread.sleep(25000);
       String e = runCmd("id");
-      e += "BaseDevTest.startProcess";
+      e += "BaseDevTest.startProcess \n";
       e += runCmd("pwd");
       e += runCmd("ls -la");
       e += "pom file name=" + pom.getPath() + "\n";
@@ -206,9 +206,13 @@ public class BaseDevTest {
 
          process.waitFor(120, TimeUnit.SECONDS);
          process.exitValue();
-
+         String e = runCmd("id");
+         e += "\nSee the log file *after* adding valid source.\n";
+         actual = new String(Files.readAllBytes(logFile.toPath()));
+         e += actual+"\n";
+         System.out.println(e);
          // test that dev mode has stopped running
-         assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
+         assertTrue(e, verifyLogMessageExists("CWWKE0036I", 20000));
       }
    }
 
@@ -220,7 +224,7 @@ public class BaseDevTest {
       assertTrue(targetHelloWorld.exists());
       String e = runCmd("id");
       e += runCmd("pwd");
-      e += "in testModifyJavaFile";
+      e += "in testModifyJavaFile\n";
       e += "srcHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
       e += "srcHelloWorld.lastModified()="+targetHelloWorld.lastModified()+"\n";
       e += "targetHelloWorld.exists()="+targetHelloWorld.exists()+"\n";
@@ -285,6 +289,30 @@ public class BaseDevTest {
       return false;
    }
 
+   /**
+    * Search a file for a string.
+    * @param str      the string we are looking for in the file
+    * @param file     the file we'll read in and search
+    * @param expected the number of times we expect to see the string.
+    *                 Must be 1 or higher.
+    */
+    public static boolean readFile3(String str, File file, int expected) throws FileNotFoundException, IOException {
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      String line = br.readLine();
+      try {
+         while (line != null) {
+            if (line.contains(str)) {
+               if (--expected == 0) {
+                  return true;
+               }
+            }
+            line = br.readLine();
+         }
+      } finally {
+         br.close();
+      }
+      return false;
+   }
    public static int readFile2(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       int foundCount = 0;
@@ -340,6 +368,20 @@ public class BaseDevTest {
          Thread.sleep(sleep);
          waited += sleep;
          if (readFile(message, logFile)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   protected static boolean verifyLogMessageExists(String message, int timeout, int expected)
+         throws InterruptedException, FileNotFoundException, IOException {
+      int waited = 0;
+      int sleep = 10;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (readFile3(message, logFile, expected)) {
             return true;
          }
       }
