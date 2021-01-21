@@ -208,7 +208,7 @@ public class BaseDevTest {
          process.exitValue();
          String e = runCmd("id");
          e += "\nSee the log file *after* adding valid source.\n";
-         actual = new String(Files.readAllBytes(logFile.toPath()));
+         String actual = new String(Files.readAllBytes(logFile.toPath()));
          e += actual+"\n";
          System.out.println(e);
          // test that dev mode has stopped running
