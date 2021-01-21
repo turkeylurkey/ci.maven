@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019.
+ * (c) Copyright IBM Corporation 2019, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,41 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DevTest extends BaseDevTest {
+   String mpHealthComment = "<!-- <dependency>\n" +
+   "        <groupId>io.openliberty.features</groupId>\n" +
+   "        <artifactId>mpHealth-1.0</artifactId>\n" +
+   "        <type>esa</type>\n" +
+   "        <scope>provided</scope>\n" +
+   "    </dependency> -->";
+   String mpHealth = "<dependency>\n" +
+   "        <groupId>io.openliberty.features</groupId>\n" +
+   "        <artifactId>mpHealth-1.0</artifactId>\n" +
+   "        <type>esa</type>\n" +
+   "        <scope>provided</scope>\n" +
+   "    </dependency>";
+   String mpHealthComment_win = "<!-- <dependency>\r\n" + 
+   "        <groupId>io.openliberty.features</groupId>\r\n" + 
+   "        <artifactId>mpHealth-1.0</artifactId>\r\n" + 
+   "        <type>esa</type>\r\n" + 
+   "        <scope>provided</scope>\r\n" + 
+   "    </dependency> -->";
+   String mpHealth_win = "<dependency>\n" +
+   "        <groupId>io.openliberty.features</groupId>\r\n" +
+   "        <artifactId>mpHealth-1.0</artifactId>\r\n" +
+   "        <type>esa</type>\r\n" +
+   "        <scope>provided</scope>\r\n" +
+   "    </dependency>";
+
+   String invalidDepComment = "<!-- <dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
+   + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n"
+   + "    </dependency> -->";
+   String invalidDep = "<dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
+   + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n" + "    </dependency>";
+   String invalidDepComment_win = "<!-- <dependency>\r\n" + "        <groupId>io.openliberty.features</groupId>\r\n"
+   + "        <artifactId>abcd</artifactId>\r\n" + "        <version>1.0</version>\r\n"
+   + "    </dependency> -->";
+   String invalidDep_win = "<dependency>\r\n" + "        <groupId>io.openliberty.features</groupId>\r\n"
+   + "        <artifactId>abcd</artifactId>\r\n" + "        <version>1.0</version>\r\n" + "    </dependency>";
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
@@ -153,12 +188,11 @@ public class DevTest extends BaseDevTest {
     @Test
     public void invalidDependencyTest() throws Exception {
         // add invalid dependency to pom.xml
-        String invalidDepComment = "<!-- <dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
-                + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n"
-                + "    </dependency> -->";
-        String invalidDep = "<dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
-                + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n" + "    </dependency>";
-        replaceString(invalidDepComment, invalidDep, pom);
+        if (isWindows()) {
+           replaceString(invalidDepComment_win, invalidDep_win, pom);
+        } else {
+           replaceString(invalidDepComment, invalidDep, pom);
+        }
         assertTrue(verifyLogMessageExists("Unable to resolve artifact: io.openliberty.features:abcd:1.0", 10000));
     }
    
@@ -179,21 +213,12 @@ public class DevTest extends BaseDevTest {
       assertFalse(systemHealthTarget.exists());
       
       // add mpHealth dependency to pom.xml
-      String mpHealthComment = "<!-- <dependency>\n" + 
-            "        <groupId>io.openliberty.features</groupId>\n" + 
-            "        <artifactId>mpHealth-1.0</artifactId>\n" + 
-            "        <type>esa</type>\n" + 
-            "        <scope>provided</scope>\n" + 
-            "    </dependency> -->";
-      String mpHealth = "<dependency>\n" + 
-            "        <groupId>io.openliberty.features</groupId>\n" + 
-            "        <artifactId>mpHealth-1.0</artifactId>\n" + 
-            "        <type>esa</type>\n" + 
-            "        <scope>provided</scope>\n" + 
-            "    </dependency>";
-      replaceString(mpHealthComment, mpHealth, pom);
-      
-      assertTrue(verifyLogMessageExists("The following features have been installed", 100000));
+      if (isWindows()) {
+         replaceString(mpHealthComment_win, mpHealth_win, pom);
+      } else {
+         replaceString(mpHealthComment, mpHealth, pom);
+      }
+      assertTrue(verifyLogMessageExists("The following features have been installed", 100000, 2));
       
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
@@ -203,7 +228,7 @@ public class DevTest extends BaseDevTest {
       javaWriter.close();
 
       Thread.sleep(1000); // wait for compilation
-      assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000));
+      assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000, 2));
       Thread.sleep(15000); // wait for compilation
       assertTrue(systemHealthTarget.exists());
    }

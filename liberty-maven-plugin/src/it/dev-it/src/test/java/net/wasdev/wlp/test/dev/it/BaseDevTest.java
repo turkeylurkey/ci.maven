@@ -158,8 +158,16 @@ public class BaseDevTest {
          process.exitValue();
 
          // test that dev mode has stopped running
-         assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
+         // On Windows mvn liberty:run is just terminated without a chance to clean up.
+         if (!isWindows() && !isDevMode) {
+            assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
+         }
       }
+   }
+
+   protected static boolean isWindows() {
+      String os = System.getProperty("os.name");
+      return (os != null && os.toLowerCase().startsWith("windows"));
    }
 
    protected static void testModifyJavaFile() throws IOException, InterruptedException {
@@ -182,13 +190,23 @@ public class BaseDevTest {
       assertTrue(wasModified);
    }
 
-   private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
+   /**
+    * Look for a string in a file existing on a specified number of lines.
+    * Note: if the string is on one line twice that counts as one time.
+    * @param str      The string we are searching for.
+    * @param file     The text file to search for the string.
+    * @param expected The number of lines containing an instance of the string.
+    *                 Must be greater than 0.
+    */
+   private static boolean readFile(String str, File file, int expected) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       String line = br.readLine();
       try {
          while (line != null) {
             if (line.contains(str)) {
-               return true;
+               if (--expected == 0) {
+                  return true;
+               }
             }
             line = br.readLine();
          }
@@ -202,8 +220,7 @@ public class BaseDevTest {
       ProcessBuilder builder = new ProcessBuilder();
       builder.directory(tempProj);
 
-      String os = System.getProperty("os.name");
-      if (os != null && os.toLowerCase().startsWith("windows")) {
+      if (isWindows())) {
          builder.command("CMD", "/C", processCommand);
       } else {
          builder.command("bash", "-c", processCommand);
@@ -230,12 +247,16 @@ public class BaseDevTest {
 
    protected static boolean verifyLogMessageExists(String message, int timeout)
          throws InterruptedException, FileNotFoundException, IOException {
+      return verifyLogMessageExists(message, timeout, 1);
+   }
+   protected static boolean verifyLogMessageExists(String message, int timeout, int expected)
+         throws InterruptedException, FileNotFoundException, IOException {
       int waited = 0;
       int sleep = 10;
       while (waited <= timeout) {
          Thread.sleep(sleep);
          waited += sleep;
-         if (readFile(message, logFile)) {
+         if (readFile(message, logFile, expected)) {
             return true;
          }
       }
