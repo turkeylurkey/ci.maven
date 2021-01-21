@@ -195,6 +195,10 @@ public class BaseDevTest {
    private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
       // shut down dev mode
       if (writer != null) {
+         String e = runCmd("id");
+         e += "\nSee the log file *before* calling destroy.\n";
+         String actual = new String(Files.readAllBytes(logFile.toPath()));
+         e += actual+"\n";
          if(isDevMode) {
             writer.write("exit\n"); // trigger dev mode to shut down
          }
@@ -204,11 +208,11 @@ public class BaseDevTest {
          writer.flush();
          writer.close();
 
-         process.waitFor(120, TimeUnit.SECONDS);
-         process.exitValue();
-         String e = runCmd("id");
-         e += "\nSee the log file *after* adding valid source.\n";
-         String actual = new String(Files.readAllBytes(logFile.toPath()));
+         boolean b1 = process.waitFor(120, TimeUnit.SECONDS);
+         int ex = process.exitValue();
+         e += "waitFor="+b1+" exit value="+ex+"\n";
+         e += "\nSee the log file *after* calling destroy.\n";
+         actual = new String(Files.readAllBytes(logFile.toPath()));
          e += actual+"\n";
          System.out.println(e);
          // test that dev mode has stopped running
