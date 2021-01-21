@@ -200,6 +200,9 @@ public class DevTest extends BaseDevTest {
    public void resolveDependencyTest() throws Exception {      
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
+      String e = runCmd("id");
+      int c1;
+      e += "in resolveDependencyTest\n";
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
@@ -208,17 +211,37 @@ public class DevTest extends BaseDevTest {
 
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
-      
-      assertTrue(verifyLogMessageExists("Source compilation had errors", 200000));
+      boolean b1 = verifyLogMessageExists("Source compilation had errors", 200000);
+      c1 = readFile2("Source compilation had errors", logFile);
+      e += "After: 'Source compilation had errors' found "+c1+" times.\n";
+      assertTrue(e, b1);
+      e += "Found 'Source compilation had errors', 1st occurance and previous line:\n";
+      e += readLine0+"\n";
+      e += readLine1+"\n";
       assertFalse(systemHealthTarget.exists());
       
+      e += "See the log file before updating pom.xml.\n";
+      String actual = new String(Files.readAllBytes(logFile.toPath()));
+      e += actual + "\n";
+
       // add mpHealth dependency to pom.xml
+      boolean b;
       if (isWindows()) {
-         replaceString(mpHealthComment_win, mpHealth_win, pom);
+         b = replaceString(mpHealthComment_win, mpHealth_win, pom);
       } else {
-         replaceString(mpHealthComment, mpHealth, pom);
+         b = replaceString(mpHealthComment, mpHealth, pom);
       }
-      assertTrue(verifyLogMessageExists("The following features have been installed", 100000, 2));
+      e += "replaceString() find something? :"+b;
+      boolean b2 = verifyLogMessageExists("The following features have been installed", 100000, 2);
+      int c2 = readFile2("The following features have been installed", logFile);
+      e += "After changing pom.xml, found 'The following features have been installed' "+c2+" times.\n";
+      e += "Just modified pom.xml, new file:\n";
+      actual = new String(Files.readAllBytes(pom.toPath()));
+      e += actual+"\n";
+      assertTrue(e, b2);
+      e += "Found 'The following features have been installed', previous line and current:\n";
+      e += readLine0+"\n";
+      e += readLine1+"\n";
       
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
@@ -228,9 +251,10 @@ public class DevTest extends BaseDevTest {
       javaWriter.close();
 
       Thread.sleep(1000); // wait for compilation
-      assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000, 2));
+      assertTrue(e, verifyLogMessageExists("Source compilation was successful.", 100000, 2));
       Thread.sleep(15000); // wait for compilation
-      assertTrue(systemHealthTarget.exists());
+      System.out.println(e);
+      assertTrue(e, systemHealthTarget.exists());
    }
 
 }

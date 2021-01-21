@@ -55,6 +55,8 @@ public class BaseDevTest {
    static File pom;
    static BufferedWriter writer;
    static Process process;
+   public static String readLine0;
+   public static String readLine1;
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
@@ -200,7 +202,10 @@ public class BaseDevTest {
     */
    private static boolean readFile(String str, File file, int expected) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
+      int lineNumber = 1;
       String line = br.readLine();
+      readLine0 = String.valueOf(lineNumber) + " " + line;
+      readLine1 = String.valueOf(lineNumber) + " " + line;
       try {
          while (line != null) {
             if (line.contains(str)) {
@@ -209,11 +214,29 @@ public class BaseDevTest {
                }
             }
             line = br.readLine();
+            readLine0 = readLine1;
+            readLine1 = String.valueOf(++lineNumber) + " " + line;
          }
       } finally {
          br.close();
       }
       return false;
+   }
+   public static int readFile2(String str, File file) throws FileNotFoundException, IOException {
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      int foundCount = 0;
+      String line = br.readLine();
+      try {
+         while (line != null) {
+            if (line.contains(str)) {
+               ++foundCount;
+            }
+            line = br.readLine();
+         }
+      } finally {
+         br.close();
+      }
+      return foundCount;
    }
 
    private static ProcessBuilder buildProcess(String processCommand) {
@@ -235,14 +258,15 @@ public class BaseDevTest {
       replaceString("RUNTIME_VERSION", runtimeVersion, pom);
    }
 
-   protected static void replaceString(String str, String replacement, File file) throws IOException {
+   protected static boolean replaceString(String str, String replacement, File file) throws IOException {
       Path path = file.toPath();
       Charset charset = StandardCharsets.UTF_8;
 
       String content = new String(Files.readAllBytes(path), charset);
-
+      boolean b = content.contains(str);
       content = content.replaceAll(str, replacement);
       Files.write(path, content.getBytes(charset));
+      return b;
    }
 
    protected static boolean verifyLogMessageExists(String message, int timeout)
