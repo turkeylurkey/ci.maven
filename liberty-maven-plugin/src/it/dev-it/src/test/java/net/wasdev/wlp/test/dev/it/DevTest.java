@@ -202,6 +202,9 @@ public class DevTest extends BaseDevTest {
 
       String e = runCmd("id");
       e += "in resolveDependencyTest\n";
+      e += "Just verified 'Liberty is running in dev mode', starting log file:\n";
+      String actual = new String(Files.readAllBytes(logFile.toPath()));
+      e += actual+"\n";
       int c1 = readFile2("Source compilation had errors", logFile);
       e += "Before: 'Source compilation had errors' found "+c1+" times.\n";
       // create the HealthCheck class, expect a compilation error
@@ -221,8 +224,8 @@ public class DevTest extends BaseDevTest {
       assertTrue(e, b1);
       assertFalse(systemHealthTarget.exists());
       
-      e += "See the log file before updating pom.xml.\n";
-      String actual = new String(Files.readAllBytes(logFile.toPath()));
+      e += "See the LOG file before updating pom.xml.\n";
+      actual = new String(Files.readAllBytes(logFile.toPath()));
       e += actual + "\n";
 
       // add mpHealth dependency to pom.xml
