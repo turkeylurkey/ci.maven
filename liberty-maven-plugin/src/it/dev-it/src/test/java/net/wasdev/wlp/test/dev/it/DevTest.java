@@ -231,17 +231,20 @@ public class DevTest extends BaseDevTest {
       } else {
          b = replaceString(mpHealthComment, mpHealth, pom);
       }
-      e += "replaceString() find something? :"+b;
+      e += "replaceString() find something? :"+b+"\n";
       boolean b2 = verifyLogMessageExists("The following features have been installed", 100000, 2);
       int c2 = readFile2("The following features have been installed", logFile);
       e += "After changing pom.xml, found 'The following features have been installed' "+c2+" times.\n";
-      e += "Just modified pom.xml, new file:\n";
-      actual = new String(Files.readAllBytes(pom.toPath()));
-      e += actual+"\n";
-      assertTrue(e, b2);
       e += "Found 'The following features have been installed', previous line and current:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
+      e += "Just modified pom.xml, new pom file:\n";
+      actual = new String(Files.readAllBytes(pom.toPath()));
+      e += actual+"\n";
+      e += "Just modified pom.xml, new log file:\n";
+      actual = new String(Files.readAllBytes(logFile.toPath()));
+      e += actual+"\n";
+      assertTrue(e, b2);
       
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
