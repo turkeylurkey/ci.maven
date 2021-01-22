@@ -47,7 +47,7 @@ public class DevTest extends BaseDevTest {
    "        <type>esa</type>\r\n" + 
    "        <scope>provided</scope>\r\n" + 
    "    </dependency> -->";
-   String mpHealth_win = "<dependency>\n" +
+   String mpHealth_win = "<dependency>\r\n" +
    "        <groupId>io.openliberty.features</groupId>\r\n" +
    "        <artifactId>mpHealth-1.0</artifactId>\r\n" +
    "        <type>esa</type>\r\n" +
@@ -201,8 +201,9 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
       String e = runCmd("id");
-      int c1;
       e += "in resolveDependencyTest\n";
+      int c1 = readFile2("Source compilation had errors", logFile);
+      e += "Before: 'Source compilation had errors' found "+c1+" times.\n";
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
@@ -214,10 +215,10 @@ public class DevTest extends BaseDevTest {
       boolean b1 = verifyLogMessageExists("Source compilation had errors", 200000);
       c1 = readFile2("Source compilation had errors", logFile);
       e += "After: 'Source compilation had errors' found "+c1+" times.\n";
-      assertTrue(e, b1);
       e += "Found 'Source compilation had errors', 1st occurance and previous line:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
+      assertTrue(e, b1);
       assertFalse(systemHealthTarget.exists());
       
       e += "See the log file before updating pom.xml.\n";
@@ -227,8 +228,10 @@ public class DevTest extends BaseDevTest {
       // add mpHealth dependency to pom.xml
       boolean b;
       if (isWindows()) {
+         e += "isWindows()\n";
          b = replaceString(mpHealthComment_win, mpHealth_win, pom);
       } else {
+         e += "is NOT Windows()\n";
          b = replaceString(mpHealthComment, mpHealth, pom);
       }
       e += "replaceString() find something? :"+b+"\n";
