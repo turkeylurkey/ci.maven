@@ -247,7 +247,7 @@ public class DevTest extends BaseDevTest {
       e += "Just modified pom.xml, new pom file:\n";
       actual = new String(Files.readAllBytes(pom.toPath()));
       e += actual+"\n";
-      e += "Just modified pom.xml, new log file:\n";
+      e += "Just modified pom.xml, new log file: \n";
       actual = new String(Files.readAllBytes(logFile.toPath()));
       e += actual+"\n";
       assertTrue(e, b2);
