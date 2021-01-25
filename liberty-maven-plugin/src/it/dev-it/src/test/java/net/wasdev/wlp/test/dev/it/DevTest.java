@@ -254,7 +254,7 @@ public class DevTest extends BaseDevTest {
          e += runCmd("ls -l " + logFile.getPath());
          e += runCmd("cat " + logFile.getPath());
       }
-      e += "\nSee the log file *after* adding valid source.\n";
+      e += "\nSee the log file *after* adding valid source. \n";
       actual = new String(Files.readAllBytes(logFile.toPath()));
       e += actual+"\n";
       Thread.sleep(45000); // wait for compilation
