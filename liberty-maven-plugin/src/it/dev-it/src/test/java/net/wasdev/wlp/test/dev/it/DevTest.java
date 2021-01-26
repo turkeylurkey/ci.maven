@@ -260,7 +260,12 @@ public class DevTest extends BaseDevTest {
       javaWriter.close();
 
       Thread.sleep(1000); // wait for compilation
-      assertTrue(e, verifyLogMessageExists("Source compilation was successful.", 100000, 2));
+      if (isWindows()) {
+         // On Windows the event which drives the first recompilation after the server starts is not generated.
+         assertTrue(e, verifyLogMessageExists("Source compilation was successful.", 100000, 1));
+      } else {
+         assertTrue(e, verifyLogMessageExists("Source compilation was successful.", 100000, 2));
+      }
       Thread.sleep(15000); // wait for compilation
       System.out.println(e);
       assertTrue(e, systemHealthTarget.exists());
