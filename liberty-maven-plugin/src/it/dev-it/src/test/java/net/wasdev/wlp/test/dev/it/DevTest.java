@@ -203,9 +203,13 @@ public class DevTest extends BaseDevTest {
       String e = runCmd("id");
       e += "in resolveDependencyTest\n";
       e += "Just verified 'Liberty is running in dev mode', starting log file:\n";
-      String actual = new String(Files.readAllBytes(logFile.toPath()));
+      String actual = readInFile(logFile);
       e += actual+"\n";
-      int c1 = readFile2("Source compilation had errors", logFile);
+      e += "Test of readAllBytes, logFile=\n";
+      actual = new String(Files.readAllBytes(logFile.toPath()));
+      e += actual+"\n";
+
+      int c1 = searchFile("Source compilation had errors", logFile);
       e += "Before: 'Source compilation had errors' found "+c1+" times.\n";
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
@@ -216,7 +220,7 @@ public class DevTest extends BaseDevTest {
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       boolean b1 = verifyLogMessageExists("Source compilation had errors", 200000);
-      c1 = readFile2("Source compilation had errors", logFile);
+      c1 = searchFile("Source compilation had errors", logFile);
       e += "After: 'Source compilation had errors' found "+c1+" times.\n";
       e += "Found 'Source compilation had errors', 1st occurance and previous line:\n";
       e += readLine0+"\n";
@@ -225,10 +229,10 @@ public class DevTest extends BaseDevTest {
       assertFalse(systemHealthTarget.exists());
       
       e += "See the LOG file before updating pom.xml.\n";
-      actual = new String(Files.readAllBytes(logFile.toPath()));
+      actual = readInFile(logFile);
       e += actual + "\n";
       e += "See the POM file before updating pom.xml.\n";
-      actual = new String(Files.readAllBytes(pom.toPath()));
+      actual = readInFile(pom);
       e += actual + "\n";
 
       // add mpHealth dependency to pom.xml
@@ -242,16 +246,16 @@ public class DevTest extends BaseDevTest {
       }
       e += "replaceString() find something? :"+b+"\n";
       boolean b2 = verifyLogMessageExists("The following features have been installed", 100000, 2);
-      int c2 = readFile2("The following features have been installed", logFile);
+      int c2 = searchFile("The following features have been installed", logFile);
       e += "After changing pom.xml, found 'The following features have been installed' "+c2+" times.\n";
       e += "Found 'The following features have been installed', previous line and current:\n";
       e += readLine0+"\n";
       e += readLine1+"\n";
       e += "Just modified pom.xml, new pom file:\n";
-      actual = new String(Files.readAllBytes(pom.toPath()));
+      actual = readInFile(pom);
       e += actual+"\n";
       e += "Just modified pom.xml, new log file: \n";
-      actual = new String(Files.readAllBytes(logFile.toPath()));
+      actual = readInFile(logFile);
       e += actual+"\n";
       assertTrue(e, b2);
       

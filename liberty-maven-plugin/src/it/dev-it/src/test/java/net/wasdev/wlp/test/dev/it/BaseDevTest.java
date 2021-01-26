@@ -255,7 +255,7 @@ public class BaseDevTest {
       }
       return false;
    }
-   public static int readFile2(String str, File file) throws FileNotFoundException, IOException {
+   public static int searchFile(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       int foundCount = 0;
       String line = br.readLine();
@@ -270,6 +270,20 @@ public class BaseDevTest {
          br.close();
       }
       return foundCount;
+   }
+   public static String readInFile(File file) throws FileNotFoundException, IOException {
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      StringBuilder sb = new StringBuilder();
+      String line = br.readLine();
+      try {
+         while (line != null) {
+            sb.append(line);
+            line = br.readLine();
+         }
+      } finally {
+         br.close();
+      }
+      return sb.toString();
    }
 
    private static ProcessBuilder buildProcess(String processCommand) {
