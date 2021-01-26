@@ -227,6 +227,9 @@ public class DevTest extends BaseDevTest {
       e += "See the LOG file before updating pom.xml.\n";
       actual = new String(Files.readAllBytes(logFile.toPath()));
       e += actual + "\n";
+      e += "See the POM file before updating pom.xml.\n";
+      actual = new String(Files.readAllBytes(pom.toPath()));
+      e += actual + "\n";
 
       // add mpHealth dependency to pom.xml
       boolean b;
