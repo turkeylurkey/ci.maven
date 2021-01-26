@@ -246,6 +246,7 @@ public class DevTest extends BaseDevTest {
       }
       e += "replaceString() find something? :"+b+"\n";
       boolean b2 = verifyLogMessageExists("The following features have been installed", 100000, 2);
+      e += "Is installed features verified? :"+b2+"\n";
       int c2 = searchFile("The following features have been installed", logFile);
       e += "After changing pom.xml, found 'The following features have been installed' "+c2+" times.\n";
       e += "Found 'The following features have been installed', previous line and current:\n";
@@ -259,6 +260,8 @@ public class DevTest extends BaseDevTest {
       e += actual+"\n";
       assertTrue(e, b2);
       
+      int successfulCount = searchFile("Source compilation was successful.", logFile);
+      e += "Number of times 'Source compilation was successful' appears before changing the Java file:"+successfulCount+"\n";
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
       javaWriter.append(' ');
@@ -267,12 +270,7 @@ public class DevTest extends BaseDevTest {
       javaWriter.close();
 
       Thread.sleep(1000); // wait for compilation
-      if (isWindows()) {
-         // On Windows the event which drives the first recompilation after the server starts is not generated.
-         assertTrue(e, verifyLogMessageExists("Source compilation was successful.", 100000, 1));
-      } else {
-         assertTrue(e, verifyLogMessageExists("Source compilation was successful.", 100000, 2));
-      }
+      assertTrue(e, verifyLogMessageExists("Source compilation was successful.", 100000, successfulCount + 1));
       Thread.sleep(15000); // wait for compilation
       System.out.println(e);
       assertTrue(e, systemHealthTarget.exists());

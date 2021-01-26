@@ -255,6 +255,7 @@ public class BaseDevTest {
       }
       return false;
    }
+   
    public static int searchFile(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       int foundCount = 0;
@@ -277,7 +278,7 @@ public class BaseDevTest {
       String line = br.readLine();
       try {
          while (line != null) {
-            sb.append(line);
+            sb.append(line).append("\n");
             line = br.readLine();
          }
       } finally {
