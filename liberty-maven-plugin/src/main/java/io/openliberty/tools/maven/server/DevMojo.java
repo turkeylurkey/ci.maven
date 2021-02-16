@@ -784,14 +784,15 @@ public class DevMojo extends StartDebugMojoSupport {
             /**********
              * ********/
             ServerFeature servUtil = new ServerFeature();
-            Set<String> features = servUtil.getAllServerFeatures("21.0.0.1");
+            Set<String> features = servUtil.getAllServerFeatures(1, "21.0.0.1");
             log.warn("getAllServerFeatures 21.0.0.1 count="+features.size());
 
             List<Dependency> allProjectDependencies = project.getDependencies();
             Set<String> libertyProjectDependencies = new HashSet<String>();
             for (Dependency d : allProjectDependencies) {
-                if (d.getGroupId().equals("io.openliberty.features")) {
-                    libertyProjectDependencies.add(d.getArtifactId());
+                //if (d.getGroupId().equals("io.openliberty.features")) {
+                if (d.getGroupId().equals("com.ibm.websphere.appserver.features")) {
+                        libertyProjectDependencies.add(d.getArtifactId());
                 }
             }
             log.warn("maven dependencies that are liberty features:"+libertyProjectDependencies);
