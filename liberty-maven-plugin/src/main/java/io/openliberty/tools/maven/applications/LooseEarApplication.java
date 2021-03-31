@@ -37,30 +37,31 @@ public class LooseEarApplication extends LooseApplication {
         this.project = project;
     }
 
-    public void addSourceDir() throws Exception {
+    public Element addSourceDir() throws Exception {
         File sourceDir = new File(project.getBasedir(), "src/main/application");
         String path = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                 "earSourceDirectory");
         if (path != null) {
             sourceDir = new File(path);
         }
-        config.addDir(sourceDir, "/");
+        return config.addDir(sourceDir, "/");
     }
 
-    public void addApplicationXmlFile() throws Exception {
+    public Element addApplicationXmlFile() throws Exception {
         File applicationXmlFile = null;
         String path = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                 "applicationXml");
         if (path != null && !path.isEmpty()) {
             applicationXmlFile = new File(path);
-            config.addFile(applicationXmlFile, "/META-INF/application.xml");
+            return config.addFile(applicationXmlFile, "/META-INF/application.xml");
         } else if (MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                 "generateApplicationXml") == null
                 || MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                         "generateApplicationXml").equals("true")) {
             applicationXmlFile = new File(buildDirectory + "/application.xml");
-            config.addFile(applicationXmlFile, "/META-INF/application.xml");
+            return config.addFile(applicationXmlFile, "/META-INF/application.xml");
         }
+        return null;
     }
 
     public Element addJarModule(MavenProject proj) throws Exception {
@@ -190,9 +191,9 @@ public class LooseEarApplication extends LooseApplication {
         return null;
     }
 
-    public void addModuleFromM2(Artifact artifact) throws Exception {
+    public Element addModuleFromM2(Artifact artifact) throws Exception {
         String artifactName = getModuleUri(artifact);
-        config.addFile(artifact.getFile(), artifactName);
+        return config.addFile(artifact.getFile(), artifactName);
     }
 
     public String getModuleName(Artifact artifact) throws Exception {

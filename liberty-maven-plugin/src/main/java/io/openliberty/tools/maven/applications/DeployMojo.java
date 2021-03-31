@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020.
+ * (C) Copyright IBM Corporation 2014, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@ import java.util.Set;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-
+import org.apache.maven.project.ProjectBuilder;
 import org.apache.tools.ant.taskdefs.Copy;
 
 import io.openliberty.tools.maven.utils.SpringBootUtil;
@@ -157,10 +158,11 @@ public class DeployMojo extends DeployMojoSupport {
             if (assemblyArtifact != null && matches(artifact, assemblyArtifact)) {
                 continue;
             }
-            if (artifact.getScope().equals("compile")) {
+            if (artifact.getScope().equals(Artifact.SCOPE_COMPILE)) {
                 if (isSupportedType(artifact.getType())) {
                     if (looseApplication && isReactorMavenProject(artifact)) {  //Installing the reactor project artifacts
                         MavenProject dependProj = getReactorMavenProject(artifact);
+                        log.warn("builder1="+mavenProjectBuilder);
                         installLooseApplication(dependProj);
                     } else {
                         installApp(resolveArtifact(artifact));
@@ -176,6 +178,7 @@ public class DeployMojo extends DeployMojoSupport {
     protected void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {
             if (looseApplication) {
+            	log.warn("builder2="+mavenProjectBuilder);
                 installLooseApplication(project);
             } else {
                 installApp(project.getArtifact());

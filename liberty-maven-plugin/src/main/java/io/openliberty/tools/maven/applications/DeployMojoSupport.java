@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2020.
+ * (C) Copyright IBM Corporation 2016, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package io.openliberty.tools.maven.applications;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,9 +28,13 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.ant.SpringBootUtilTask;
@@ -164,10 +169,28 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
         Set<Artifact> artifacts = proj.getArtifacts();
         log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
+        log.warn("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
+        Map<String, ProjectBuildingResult> moduleDescriptors = null;
+        if (parentHasModules(proj)) {
+            moduleDescriptors = getModules(proj.getParent());
+        }
 
         for (Artifact artifact : artifacts) {
-            if ("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope())) {
-                if (!isReactorMavenProject(artifact)) {
+        	log.warn("artifact="+artifact.getArtifactId()+" scope="+artifact.getScope());
+            if (Artifact.SCOPE_COMPILE.equals(artifact.getScope()) || Artifact.SCOPE_RUNTIME.equals(artifact.getScope())) {
+        	    log.warn("show artifact full name:"+getFullName(artifact.getArtifactId(), artifact.getGroupId(), artifact.getVersion()));
+                boolean b = isPeerModule(moduleDescriptors, artifact);
+                log.warn("Peer? artifact "+artifact.getArtifactId()+" is peer of project "+b);
+                if (isReactorMavenProject(artifact)) {
+                    MavenProject dependencyProject = getReactorMavenProject(artifact);
+                    log.warn("dependencyProject display name="+dependencyProject.getName()+" artifactid="+dependencyProject.getArtifactId()+":"+dependencyProject.getGroupId());
+                    addLooseModule(looseEar, artifact, dependencyProject, null, null);
+                } else if (isPeerModule(moduleDescriptors, artifact)) {
+                    MavenProject dependencyProject = getPeerModule(moduleDescriptors, artifact);
+                    log.warn("peer module Project display name="+dependencyProject.getName()+" artifactid="+dependencyProject.getArtifactId()+":"+dependencyProject.getGroupId());
+                    addLooseModule(looseEar, artifact, dependencyProject, moduleDescriptors, null);
+                } else {
+                    log.warn("Set up loose ear ");
                     if (looseEar.isEarSkinnyWars() && "war".equals(artifact.getType())) {
                         throw new MojoExecutionException(
                                 "Unable to create loose configuration for the EAR application with skinnyWars package from "
@@ -176,35 +199,6 @@ public class DeployMojoSupport extends PluginConfigSupport {
                                         + ". Please set the looseApplication configuration parameter to false and try again.");
                     }
                     looseEar.addModuleFromM2(resolveArtifact(artifact));
-                } else {
-                    MavenProject dependencyProject = getReactorMavenProject(artifact);
-                    switch (artifact.getType()) {
-                    case "jar":
-                        looseEar.addJarModule(dependencyProject);
-                        break;
-                    case "ejb":
-                        looseEar.addEjbModule(dependencyProject);
-                        break;
-                    case "war":
-                        Element warArchive = looseEar.addWarModule(dependencyProject,
-                                getWarSourceDirectory(dependencyProject));
-                        if (looseEar.isEarSkinnyWars()) {
-                            // add embedded lib only if they are not a compile dependency in the ear
-                            // project.
-                            addSkinnyWarLib(warArchive, dependencyProject, looseEar);
-                        } else {
-                            addEmbeddedLib(warArchive, dependencyProject, looseEar, "/WEB-INF/lib/");
-                        }
-                        break;
-                    case "rar":
-                        Element rarArchive = looseEar.addRarModule(dependencyProject);
-                        addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");
-                        break;
-                    default:
-                        // use the artifact from local .m2 repo
-                        looseEar.addModuleFromM2(resolveArtifact(artifact));
-                        break;
-                    }
                 }
             }
         }
@@ -212,6 +206,138 @@ public class DeployMojoSupport extends PluginConfigSupport {
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-ear-plugin");
         looseEar.addManifestFile(manifestFile);
+    }
+
+	private Element addLooseModule(LooseEarApplication looseEar, Artifact artifact, MavenProject dependencyProject, Map<String, ProjectBuildingResult> moduleDescriptors, Element docRef)
+			throws Exception, MojoExecutionException {
+		Element newElement;
+        log.warn("add Loose Module "+artifact.getGroupId()+":"+artifact.getArtifactId());
+		switch (artifact.getType()) {
+		case "jar":
+			newElement = looseEar.addJarModule(dependencyProject);
+		    log.warn(" add jar element children size:"+newElement.getChildNodes().getLength());
+		    log.warn(" add jar element text:"+newElement.getTextContent());
+		    log.warn(" add jar element targetInArchive attr:"+newElement.getAttribute("targetInArchive"));
+		    break;
+		case "ejb":
+			newElement = looseEar.addEjbModule(dependencyProject);
+		    break;
+		case "war":
+		    Element warArchive = looseEar.addWarModule(dependencyProject,
+		            getWarSourceDirectory(dependencyProject));
+		    log.warn(" add WAR element children size:"+warArchive.getChildNodes().getLength());
+		    log.warn(" add WAR element first child node value:"+warArchive.getFirstChild().getNodeValue());
+		    log.warn(" add WAR element targetInArchive attr:"+warArchive.getAttribute("targetInArchive"));
+		    if (looseEar.isEarSkinnyWars()) {
+		        // add embedded lib only if they are not a compile dependency in the ear
+		        // project.
+		        addSkinnyWarLib(warArchive, dependencyProject, looseEar);
+		    } else if (moduleDescriptors != null) { // multimodule build
+		    	Set<Artifact> artifacts = dependencyProject.getArtifacts();
+		        log.warn("Number of compile dependencies for " + dependencyProject.getArtifactId() + " : " + artifacts.size());
+
+		        for (Artifact a : artifacts) {
+		            if ((Artifact.SCOPE_COMPILE.equals(a.getScope()) || Artifact.SCOPE_RUNTIME.equals(a.getScope()))
+		                    && "jar".equals(a.getType()) && isPeerModule(moduleDescriptors, a)) {
+		            	Element newJar = addLooseModule(looseEar, a, getPeerModule(moduleDescriptors, a), moduleDescriptors, warArchive);
+		            	// newJar added to end of config. Move it into the war element.
+		            	// TODO
+		            	Node documentRoot = looseEar.getDocumentRoot();
+		            	if (documentRoot instanceof Element) {
+		            		Element topArchive = (Element) documentRoot;
+		            		log.warn(" new Jar targetInArchive attr:"+topArchive.getAttribute("targetInArchive"));
+			            	Node lastChild = topArchive.getLastChild(); // should be new Jar
+			            	Element lastChildE = (Element) lastChild;
+			            	log.warn(" last Child targetInArchive attr:"+lastChildE.getAttribute("targetInArchive"));
+			            	log.warn(" last Child hash="+lastChild.hashCode());
+			            	log.warn(" newJar hash="+newJar.hashCode());
+			            	if (lastChild == newJar) {
+			            		log.warn(" last Child is the same as newJar");
+			            		topArchive.removeChild(lastChild);
+			            		warArchive.appendChild(lastChild);
+			            	}
+		            	}
+		            }
+		        }
+		    } else {
+		        addEmbeddedLib(warArchive, dependencyProject, looseEar, "/WEB-INF/lib/");
+		    }
+		    newElement = warArchive;
+		    break;
+		case "rar":
+		    Element rarArchive = looseEar.addRarModule(dependencyProject);
+		    addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");
+		    newElement = rarArchive;
+		    break;
+		default:
+		    // use the artifact from local .m2 repo
+			newElement = looseEar.addModuleFromM2(resolveArtifact(artifact));
+		    break;
+		}
+        log.warn("exit add Loose Module "+artifact.getGroupId()+":"+artifact.getArtifactId());
+        return newElement;
+	}
+
+    private boolean isPeerModule(Map<String, ProjectBuildingResult> moduleDescriptors, Artifact a) {
+        log.warn("find artifact named "+getFullName(a.getArtifactId(), a.getGroupId(), a.getVersion()));
+        if (moduleDescriptors == null) {
+        	return false;
+        }
+        return (getPeerModule(moduleDescriptors, a) != null);
+    }
+
+    private MavenProject getPeerModule(Map<String, ProjectBuildingResult> moduleDescriptors, Artifact a) {
+        log.warn("get project for artifact named "+getFullName(a.getArtifactId(), a.getGroupId(), a.getVersion()));
+        String artifactName = getFullName(a.getArtifactId(), a.getGroupId(), a.getVersion());
+        for (String key : moduleDescriptors.keySet()) {
+        	//log.warn("getPeerModule, key="+key);
+            if (key.equals(artifactName)) {
+            	log.warn("found project "+moduleDescriptors.get(key).getProject().getArtifactId());
+            	return moduleDescriptors.get(key).getProject();
+            }
+        }
+        return null;
+    }
+
+    private boolean parentHasModules(MavenProject proj) {
+        MavenProject parent = proj.getParent();
+        if (parent != null) {
+            List<String> modules = parent.getModules();
+            if (modules != null && modules.size() > 0) {
+            	log.warn("Parent has "+modules.size()+" modules");
+                return true;
+            }
+        }
+        log.warn("No parent or no modules");
+        return false;
+    }
+
+    private Map<String, ProjectBuildingResult> getModules(MavenProject parent) {
+        Map<String, ProjectBuildingResult> moduleFiles = new HashMap<String, ProjectBuildingResult>();
+        List<String> modules = parent.getModules();
+	    for (String m : modules) {
+            log.warn("parent module:"+m);
+            File moduleFile = new File(parent.getBasedir(), m + "/pom.xml");
+            log.warn("module file="+moduleFile+" exists:"+moduleFile.exists());
+            ProjectBuildingResult projectDescriptor;
+            try {
+            	log.warn("Build project descriptor from module pom");
+    			projectDescriptor = mavenProjectBuilder.build(moduleFile, session.getProjectBuildingRequest().setResolveDependencies(true));
+            } catch (ProjectBuildingException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+            	log.warn("*Error: ProjectBuildingException for " + m + " check file exists:"+moduleFile);
+				continue;
+	        }
+            MavenProject p = projectDescriptor.getProject();
+            log.warn("Save project named "+getFullName(p.getArtifactId(), p.getGroupId(), p.getVersion()));
+            moduleFiles.put(getFullName(p.getArtifactId(), p.getGroupId(), p.getVersion()), projectDescriptor);
+        }
+        return moduleFiles;
+    }
+
+    private String getFullName(String a, String b, String c) {
+        return new StringBuilder(a).append(':').append(b).append(':').append(c).toString();
     }
 
     private boolean shouldValidateAppStart() throws MojoExecutionException {
@@ -255,7 +381,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
-            if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
+            if ((Artifact.SCOPE_COMPILE.equals(artifact.getScope()) || Artifact.SCOPE_RUNTIME.equals(artifact.getScope()))
                     && "jar".equals(artifact.getType())) {
                 addLibrary(parent, looseApp, dir, artifact);
             }
@@ -269,7 +395,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         for (Artifact artifact : artifacts) {
             // skip the embedded library if it is included in the lib directory of the ear
             // package
-            if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
+            if ((Artifact.SCOPE_COMPILE.equals(artifact.getScope()) || Artifact.SCOPE_RUNTIME.equals(artifact.getScope()))
                     && "jar".equals(artifact.getType()) && !looseEar.isEarDependency(artifact)) {
                 addLibrary(parent, looseEar, "/WEB-INF/lib/", artifact);
             }

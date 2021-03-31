@@ -103,12 +103,16 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     }
     
     protected boolean isReactorMavenProject(Artifact artifact) {
+    	log.warn("reactorProjects size="+reactorProjects.size());
         for (MavenProject p : reactorProjects) {
+        	log.warn("isReactorMavenProject, project="+p.getArtifactId());
             if (p.getGroupId().equals(artifact.getGroupId()) && p.getArtifactId().equals(artifact.getArtifactId())
                     && p.getVersion().equals(artifact.getBaseVersion())) {
+            	log.warn("^ that project is a reactor project");
                 return true;
             }
         }
+        log.warn("Not a reactor project");
         return false;
     }
     
@@ -130,7 +134,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 return p;
             }
         }
-        
+        log.warn("getReactorMavenProject none found");
         return null;
     }
     
