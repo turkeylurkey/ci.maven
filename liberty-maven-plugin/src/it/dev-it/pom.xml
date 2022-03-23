@@ -57,7 +57,8 @@
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
-                        <include>**/*Test.java</include>
+                        <include>**/*DevTest.java</include>
+                        <include>**/*RunTest.java</include>
                     </includes>
                     <systemPropertyVariables>
                         <mavenPluginVersion>@pom.version@</mavenPluginVersion>

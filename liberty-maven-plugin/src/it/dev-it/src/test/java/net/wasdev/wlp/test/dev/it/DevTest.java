@@ -211,7 +211,8 @@ public class DevTest extends BaseDevTest {
             "    </dependency> -->";
       String mpHealth = "<dependency>\n" + 
             "        <groupId>io.openliberty.features</groupId>\n" + 
-            "        <artifactId>mpHealth-1.0</artifactId>\n" + 
+            "        <artifactId>mpHealth-2.2</artifactId>\n" + 
+            "        <version>22.0.0.1</version>\n" + 
             "        <type>esa</type>\n" + 
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
