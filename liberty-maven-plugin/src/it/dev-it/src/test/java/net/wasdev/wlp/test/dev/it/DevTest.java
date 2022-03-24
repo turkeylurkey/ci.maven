@@ -210,15 +210,17 @@ public class DevTest extends BaseDevTest {
             "        <scope>provided</scope>\n" + 
             "    </dependency> -->";
       String mpHealth = "<dependency>\n" + 
-            "        <groupId>io.openliberty.features</groupId>\n" + 
-            "        <artifactId>mpHealth-2.2</artifactId>\n" + 
-            "        <version>22.0.0.1</version>\n" + 
+            "        <groupId>org.eclipse.microprofile</groupId>\n" + 
+            "        <artifactId>microprofile</artifactId>\n" +
+            "        <version>3.3</version>\n" + 
             "        <type>esa</type>\n" + 
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
       replaceString(mpHealthComment, mpHealth, pom);
-      
-      assertTrue(verifyLogMessageExists("The following features have been installed", 100000));
+
+      boolean b = verifyLogMessageExists("The following features have been installed", 100000);
+      String s = getLogTail();
+      assertTrue(s, b);//verifyLogMessageExists("The following features have been installed", 100000));
       
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
