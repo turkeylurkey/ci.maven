@@ -187,10 +187,14 @@ public class DevTest extends BaseDevTest {
     }
    
    @Test
-   public void resolveDependencyTest() throws Exception {      
-      assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
+   public void resolveDependencyTest() throws Exception {
+      String s = "\n---start of resolveDependencyTest-----";
+      s += getLogTail();
+      s += "\n---------checking for Liberty is running------------\n";
+      boolean b = verifyLogMessageExists("Liberty is running in dev mode.", 10000);
+      assertTrue(s,b);
+      //assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
-      String s = "";
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
@@ -200,10 +204,10 @@ public class DevTest extends BaseDevTest {
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       
-      s += "\nLiberty is running in dev mode, assertTrue(systemHealthSrc.exists, compiling \n---------------------\n";
-      boolean b = verifyLogMessageExists("Source compilation had errors", 200000);
+      s += "\nLiberty is running in dev mode, assertTrue(systemHealthSrc.exists,  \n----------compiling-----------\n";
+      b = verifyLogMessageExists("Source compilation had errors", 200000);
       s += getLogTail();
-      s += "\n---------------------\n";
+      s += "\n---------adding dep to pom------------\n";
       assertTrue(s, b);
       assertFalse(systemHealthTarget.exists());
       

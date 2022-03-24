@@ -181,7 +181,7 @@ public class BaseDevTest {
    }
 
    protected static String getLogTail(File log) throws IOException {
-      int numLines = 200;
+      int numLines = 100;
       ReversedLinesFileReader object = null;
       try {
          object = new ReversedLinesFileReader(log, StandardCharsets.UTF_8);
