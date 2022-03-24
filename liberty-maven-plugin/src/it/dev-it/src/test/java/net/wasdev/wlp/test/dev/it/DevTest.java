@@ -190,6 +190,7 @@ public class DevTest extends BaseDevTest {
    public void resolveDependencyTest() throws Exception {      
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
+      String s = "";
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
@@ -199,7 +200,11 @@ public class DevTest extends BaseDevTest {
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       
-      assertTrue(verifyLogMessageExists("Source compilation had errors", 200000));
+      s += "\nLiberty is running in dev mode, assertTrue(systemHealthSrc.exists, compiling \n---------------------\n";
+      boolean b = verifyLogMessageExists("Source compilation had errors", 200000);
+      s += getLogTail();
+      s += "\n---------------------\n";
+      assertTrue(s, b);
       assertFalse(systemHealthTarget.exists());
       
       // add mpHealth dependency to pom.xml
@@ -217,8 +222,9 @@ public class DevTest extends BaseDevTest {
             "    </dependency>";
       replaceString(mpHealthComment, mpHealth, pom);
 
-      boolean b = verifyLogMessageExists("The following features have been installed", 100000);
-      String s = getLogTail();
+      b = verifyLogMessageExists("The following features have been installed", 100000);
+      s += getLogTail();
+      s += "\n---------------------\n";
       assertTrue(s, b);//verifyLogMessageExists("The following features have been installed", 100000));
       
       String str = "// testing";
@@ -229,8 +235,12 @@ public class DevTest extends BaseDevTest {
       javaWriter.close();
 
       // wait for compilation
-      assertTrue(getLogTail(), verifyLogMessageExists("Source compilation was successful.", 100000));
-      assertTrue(getLogTail(), verifyFileExists(systemHealthTarget, 15000));
+      s += getLogTail();
+      s += "\n----------Source compilation was successful-----------\n";
+      assertTrue(s, verifyLogMessageExists("Source compilation was successful.", 100000));
+      s += getLogTail();
+      s += "\n---------verifyFileExists(systemHealthTarget------------\n";
+      assertTrue(s, verifyFileExists(systemHealthTarget, 15000));
    }
 
    @Test
