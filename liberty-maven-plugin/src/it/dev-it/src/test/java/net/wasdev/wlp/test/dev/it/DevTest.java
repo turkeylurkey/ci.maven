@@ -210,10 +210,9 @@ public class DevTest extends BaseDevTest {
             "        <scope>provided</scope>\n" + 
             "    </dependency> -->";
       String mpHealth = "<dependency>\n" + 
-            "        <groupId>org.eclipse.microprofile</groupId>\n" + 
-            "        <artifactId>microprofile</artifactId>\n" +
-            "        <version>3.3</version>\n" + 
-            "        <type>esa</type>\n" + 
+            "        <groupId>org.eclipse.microprofile.health</groupId>\n" + 
+            "        <artifactId>microprofile-health-api</artifactId>\n" +
+            "        <version>3.0</version>\n" + 
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
       replaceString(mpHealthComment, mpHealth, pom);
