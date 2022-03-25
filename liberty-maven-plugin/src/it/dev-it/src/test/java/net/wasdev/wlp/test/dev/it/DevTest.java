@@ -227,7 +227,14 @@ public class DevTest extends BaseDevTest {
             "        <version>3.0</version>\n" + 
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
+      s += "\npom before substitution:";
+      ss = Files.readAllBytes( pom.toPath() );
+      s += ss;
       replaceString(mpHealthComment, mpHealth, pom);
+      s += "\npom after substitution:";
+      ss = Files.readAllBytes( pom.toPath() );
+      s += ss;
+      s += "\n---------features have been installed------------\n";
 
       b = verifyLogMessageExists("The following features have been installed", 100000);
       s += getLogTail();
