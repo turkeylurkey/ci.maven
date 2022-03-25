@@ -189,7 +189,10 @@ public class DevTest extends BaseDevTest {
    @Test
    public void resolveDependencyTest() throws Exception {
       String s = "\n---start of resolveDependencyTest-----";
-      s += Files.readAllBytes( logFile.toPath() );
+      String ss = Files.readAllBytes( logFile.toPath() );
+      s += "\nlogFile path="+logFile.toPath();
+      s += "\nlength of logFile (characters)=" + ss.length();
+      s += "\n--\n" + ss;
       s += "\n---------checking for Liberty is running------------\n";
       boolean b = verifyLogMessageExists("Liberty is running in dev mode.", 10000);
       assertTrue(s,b);
