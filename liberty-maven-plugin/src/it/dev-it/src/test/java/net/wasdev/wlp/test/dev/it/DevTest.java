@@ -189,7 +189,7 @@ public class DevTest extends BaseDevTest {
    @Test
    public void resolveDependencyTest() throws Exception {
       String s = "\n---start of resolveDependencyTest-----";
-      String ss = Files.readAllBytes( logFile.toPath() );
+      String ss = new String( Files.readAllBytes( logFile.toPath() ) );
       s += "\nlogFile path="+logFile.toPath();
       s += "\nlength of logFile (characters)=" + ss.length();
       s += "\n--\n" + ss;
@@ -228,11 +228,11 @@ public class DevTest extends BaseDevTest {
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
       s += "\npom before substitution:";
-      ss = Files.readAllBytes( pom.toPath() );
+      ss = new String ( Files.readAllBytes( pom.toPath() ) );
       s += ss;
       replaceString(mpHealthComment, mpHealth, pom);
       s += "\npom after substitution:";
-      ss = Files.readAllBytes( pom.toPath() );
+      ss = new String ( Files.readAllBytes( pom.toPath() ) );
       s += ss;
       s += "\n---------features have been installed------------\n";
 
