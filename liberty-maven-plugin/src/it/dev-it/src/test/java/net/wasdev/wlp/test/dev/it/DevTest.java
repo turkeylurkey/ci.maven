@@ -198,6 +198,7 @@ public class DevTest extends BaseDevTest {
       assertTrue(s,b);
       //assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
+      Thread.sleep(2000);
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
@@ -215,16 +216,11 @@ public class DevTest extends BaseDevTest {
       assertFalse(systemHealthTarget.exists());
       
       // add mpHealth dependency to pom.xml
-      String mpHealthComment = "<!-- <dependency>\n" + 
-            "        <groupId>io.openliberty.features</groupId>\n" + 
-            "        <artifactId>mpHealth-1.0</artifactId>\n" + 
-            "        <type>esa</type>\n" + 
-            "        <scope>provided</scope>\n" + 
-            "    </dependency> -->";
+      String mpHealthComment = "<!-- replace with health api -->";
       String mpHealth = "<dependency>\n" + 
             "        <groupId>org.eclipse.microprofile.health</groupId>\n" + 
             "        <artifactId>microprofile-health-api</artifactId>\n" +
-            "        <version>3.0</version>\n" + 
+            "        <version>1.0</version>\n" + 
             "        <scope>provided</scope>\n" + 
             "    </dependency>";
       s += "\npom before substitution:";
