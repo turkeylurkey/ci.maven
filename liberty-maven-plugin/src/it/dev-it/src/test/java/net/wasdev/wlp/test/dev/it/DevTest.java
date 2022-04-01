@@ -210,10 +210,9 @@ public class DevTest extends BaseDevTest {
             "        <scope>provided</scope>\n" + 
             "    </dependency> -->";
       String mpHealth = "<dependency>\n" + 
-            "        <groupId>io.openliberty.features</groupId>\n" + 
-            "        <artifactId>mpHealth-1.0</artifactId>\n" + 
-            "        <type>esa</type>\n" + 
-            "        <scope>provided</scope>\n" + 
+            "        <groupId>org.eclipse.microprofile.health</groupId>\n" + 
+            "        <artifactId>microprofile-health-api</artifactId>\n" + 
+            "        <version>1.0</version>\n" + 
             "    </dependency>";
       replaceString(mpHealthComment, mpHealth, pom);
       
