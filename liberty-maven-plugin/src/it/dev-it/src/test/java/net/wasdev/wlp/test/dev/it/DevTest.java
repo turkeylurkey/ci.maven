@@ -110,7 +110,8 @@ public class DevTest extends BaseDevTest {
       // dev mode copies file to target dir
       File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
       assertTrue(getLogTail(), verifyFileExists(targetPropertiesFile, 30000)); // wait for dev mode
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
+      boolean b4 = verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount);
+      assertTrue(getLogTail(), b4);
 
       // delete a resource file
       assertTrue(propertiesFile.delete());
@@ -119,6 +120,7 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void testDirectoryTest() throws Exception {
+      Thread.sleep(11000);
       // create the test directory
       File testDir = new File(tempProj, "src/test/java");
       assertTrue(testDir.mkdirs());
@@ -133,8 +135,13 @@ public class DevTest extends BaseDevTest {
 
       File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
       // wait for compilation
+      String s = "\nunitTestTargetFile="+unitTestTargetFile.getName();
+      s += "\nexists="+unitTestTargetFile.exists();
+      s += "\nunitTestTargetFile last modified="+unitTestTargetFile.lastModified();
+      s += "\nunitTestSrcFile.lastModified()="+unitTestSrcFile.lastModified();
       assertTrue(getLogTail(), verifyFileExists(unitTestTargetFile, 6000));
       long lastModified = unitTestTargetFile.lastModified();
+      s += "\nunitTestTargetFile last modified2="+lastModified;
       waitLongEnough();
 
       // modify the test file
@@ -145,11 +152,24 @@ public class DevTest extends BaseDevTest {
 
       javaWriter.close();
 
-      assertTrue(getLogTail(), waitForCompilation(unitTestTargetFile, lastModified, 6000));
+      long cur = System.currentTimeMillis();
+      s += "\nCurrent time="+cur;
+      boolean b1 = waitForCompilation(unitTestTargetFile, lastModified, 12000);
+      s += "\nb1 = "+b1;
+      long cur2 = System.currentTimeMillis();
+      s += "\nCurrent time="+cur2;
+      s += "\nElapsed="+ (cur2 - cur);
+      s += "\nunitTestTargetFile last modified="+unitTestTargetFile.lastModified();
+      s += "\nunitTestSrcFile.lastModified()="+unitTestSrcFile.lastModified();
+      s += "\n" + getLogTail();
+      assertTrue(s, b1);
 
       // delete the test file
       assertTrue(getLogTail(), unitTestSrcFile.delete());
       assertTrue(getLogTail(), verifyFileDoesNotExist(unitTestTargetFile, 6000));
+
+      s += "\nForce failure testDirectoryTest\n--------\n";
+      assertTrue(s, false);
    }
 
    @Test
@@ -163,15 +183,38 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void restartServerTest() throws Exception {
+      String s = "\nrestartServerTest() ...";
+      long cur = System.currentTimeMillis();
+      s += "\n------before sleep----\n";
+      s += getLogTail();
+      Thread.sleep(92000);
+      s += "\n------after sleep----\n";
+      s += getLogTail();
+      long cur2 = System.currentTimeMillis();
+      s += "\nElapsed=" + (cur2-cur);
+      String started = "Liberty is running in dev mode.";
+      int runningCount = countOccurrences(started, logFile);
       int runningGenerateCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
       String RESTARTED = "The server has been restarted.";
       int restartedCount = countOccurrences(RESTARTED, logFile);
+      s += "\nrunningCount="+runningCount;
+      s += "\nrunningGenerateCount="+runningGenerateCount;
+      s += "\nrestartedCount="+restartedCount;
+
       writer.write("r\n"); // command to restart liberty
       writer.flush();
 
-      assertTrue(verifyLogMessageExists(RESTARTED, 20000, ++restartedCount));
+      boolean b2 = verifyLogMessageExists(RESTARTED, 99000, ++restartedCount);
+      s += "\nverifyLogMessageExists(RESTARTED,99s)="+b2;
+      long cur3 = System.currentTimeMillis();
+      s += "\nElapsed=" + (cur3-cur);
+      s += "\n------after verifyLogMessageExists(99s)----\n";
+      s += getLogTail();
+      assertTrue(s, b2);
       // not supposed to rerun generate features just because of a server restart
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 2000, runningGenerateCount));
+      s += "\nForced failure";
+      assertTrue(s, false);
    }
 
     @Test
@@ -192,7 +235,7 @@ public class DevTest extends BaseDevTest {
       String ss = new String( Files.readAllBytes( logFile.toPath() ) );
       s += "\nlogFile path="+logFile.toPath();
       s += "\nlength of logFile (characters)=" + ss.length();
-      s += "\n--\n" + ss;
+      s += "\n--whole log file--\n" + ss;
       s += "\n---------checking for Liberty is running------------\n";
       boolean b = verifyLogMessageExists("Liberty is running in dev mode.", 10000);
       assertTrue(s,b);
@@ -251,6 +294,8 @@ public class DevTest extends BaseDevTest {
       s += getLogTail();
       s += "\n---------verifyFileExists(systemHealthTarget------------\n";
       assertTrue(s, verifyFileExists(systemHealthTarget, 15000));
+      s += "\nForce fail resolveDependencyTest()\n---------\n";
+      assertTrue(s, false);
    }
 
    @Test
@@ -298,7 +343,9 @@ public class DevTest extends BaseDevTest {
       final String errMsg = "Source compilation had errors.";
       int errCount = countOccurrences(errMsg, logFile);
       replaceString(goodCode, badCode, helloBatchSrc);
-      assertTrue(getLogTail(), verifyLogMessageExists(errMsg, 15000, errCount+1)); // wait for compilation
+      boolean b5 = verifyLogMessageExists(errMsg, 15000, errCount+1);
+      String s = "\n" + getLogTail();
+      assertTrue(s, b5); // wait for compilation
       int updatedgenFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
       assertEquals(generateFeaturesCount, updatedgenFeaturesCount);
 
@@ -313,7 +360,8 @@ public class DevTest extends BaseDevTest {
       // toggle off
       writer.write("g\n");
       writer.flush();
-      assertTrue(autoGenOff, verifyLogMessageExists(autoGenOff, 1000));
+      boolean b3 = verifyLogMessageExists(autoGenOff, 1000);
+      assertTrue(getLogTail(), b3);
       // toggle on
       writer.write("g\n");
       writer.flush();
