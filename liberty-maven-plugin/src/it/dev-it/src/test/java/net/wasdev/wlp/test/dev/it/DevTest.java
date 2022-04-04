@@ -195,7 +195,7 @@ public class DevTest extends BaseDevTest {
         assertTrue(verifyLogMessageExists("The POM for io.openliberty.features:abcd:jar:1.0 is missing, no dependency information available", 10000));
     }
    
-   @Test
+   //@Test
    public void resolveDependencyTest() throws Exception {      
       Thread.sleep(91000);
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
