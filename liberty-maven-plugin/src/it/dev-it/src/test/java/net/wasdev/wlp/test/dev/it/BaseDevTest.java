@@ -209,7 +209,7 @@ public class BaseDevTest {
       }
    }
 
-   protected void writeInConsole(String line) {
+   protected void writeInConsole(String line) throws Exception {
       writer.write(line + "\n");
       writer.flush();
    }
