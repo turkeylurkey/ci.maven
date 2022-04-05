@@ -33,8 +33,9 @@ jobs:
     - name: Checkout ci.common
       uses: actions/checkout@v2
       with:
-        repository: OpenLiberty/ci.common
+        repository: turkeylurkey/ci.common
         path: ci.common
+        ref: gen-1461rr
     - name: Checkout ci.ant
       uses: actions/checkout@v2
       with:

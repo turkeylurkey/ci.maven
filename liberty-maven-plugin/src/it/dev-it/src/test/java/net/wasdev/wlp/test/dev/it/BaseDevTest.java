@@ -209,6 +209,11 @@ public class BaseDevTest {
       }
    }
 
+   protected void writeInConsole(String line) {
+      writer.write(line + "\n");
+      writer.flush();
+   }
+
    protected static void cleanUpAfterClass() throws Exception {
       cleanUpAfterClass(true);
    }
