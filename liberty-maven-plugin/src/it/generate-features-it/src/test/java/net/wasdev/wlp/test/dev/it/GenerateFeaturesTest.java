@@ -54,16 +54,16 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     public void basicTest() throws Exception {
         runCompileAndGenerateFeatures();
         // verify that the target directory was created
-        assertTrue(targetDir.exists());
+        assertTrue(formatOutput(processOutput), targetDir.exists());
 
         // verify that the generated features file was created
-        assertTrue(newFeatureFile.exists());
+        assertTrue(formatOutput(processOutput), newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
         Set<String> features = readFeatures(newFeatureFile);
         Set<String> expectedFeatures = getExpectedGeneratedFeaturesSet();
-        assertEquals(expectedFeatures.size(), features.size());
-        assertEquals(expectedFeatures, features);
+        assertEquals(formatOutput(processOutput), expectedFeatures.size(), features.size());
+        assertEquals(formatOutput(processOutput), expectedFeatures, features);
 
         // place generated features in server.xml
         replaceString("<!--replaceable-->",
