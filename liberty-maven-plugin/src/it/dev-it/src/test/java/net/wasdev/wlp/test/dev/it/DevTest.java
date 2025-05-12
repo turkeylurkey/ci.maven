@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019, 2022.
+ * (c) Copyright IBM Corporation 2019, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -276,7 +276,6 @@ public class DevTest extends BaseDevTest {
       int runGenerateFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
       int installedFeaturesCount = countOccurrences(SERVER_INSTALLED_FEATURES, logFile);
 
-      File newFeatureFile = getGeneratedFeaturesFile();
       File newTargetFeatureFile = getTargetGeneratedFeaturesFile();
       File serverXmlFile = new File(tempProj, "/src/main/liberty/config/server.xml");
       assertTrue(serverXmlFile.exists());
@@ -293,8 +292,7 @@ public class DevTest extends BaseDevTest {
       verifyFileExists(helloBatchObj, 15000);
       // ... and run the proper mojo.
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++runGenerateFeaturesCount)); // mojo ran
-      assertTrue(verifyFileExists(newFeatureFile, 5000)); // mojo created file
-      assertTrue(verifyFileExists(newTargetFeatureFile, 5000)); // dev mode copied file
+      assertTrue(verifyFileExists(newTargetFeatureFile, 5000)); // mojo created file
       assertTrue(verifyLogMessageExists("batch-1.0", 10000, newFeatureFile));
       assertTrue(verifyLogMessageExists(NEW_FILE_INFO_MESSAGE, 10000, newFeatureFile));
       assertTrue(verifyLogMessageExists(SERVER_XML_COMMENT, 10000, serverXmlFile));

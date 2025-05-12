@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.junit.Test;
  */
 public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
 
-    @BeforeClass
+   @BeforeClass
    public static void setUpBeforeClass() throws Exception {
       setUpBeforeClass(null, "../resources/basic-dev-project-umbrella-deps");
    }
@@ -43,10 +43,8 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
     public void updateDependencyTest() throws Exception {
        assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
-       File generatedFeaturesFile = getGeneratedFeaturesFile();
        File targetGeneratedFeaturesFile = getTargetGeneratedFeaturesFile();
        assertTrue(pom.exists());
-       assertTrue(generatedFeaturesFile.exists());
        assertTrue(targetGeneratedFeaturesFile.exists());
        long lastModified = generatedFeaturesFile.lastModified();
        waitLongEnough();
@@ -59,25 +57,25 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
        assertTrue(verifyLogMessageExists("Recompile skipped for dev-sample-proj since earlier compilation is successful", 10000));
 
        // modify MicroProfile umbrella dependency in pom.xml
-       replaceString("<dependency>\n"
+       replaceString(
+          "<dependency>\n"
              + "        <groupId>org.eclipse.microprofile</groupId>\n"
              + "        <artifactId>microprofile</artifactId>\n"
              + "        <version>3.3</version>\n"
              + "        <type>pom</type>\n"
              + "        <scope>provided</scope>\n",
-             "<dependency>\n"
-                   + "        <groupId>org.eclipse.microprofile</groupId>\n"
-                   + "        <artifactId>microprofile</artifactId>\n"
-                   + "        <version>4.1</version>\n"
-                   + "        <type>pom</type>\n"
-                   + "        <scope>provided</scope>\n",
-             pom);
+          "<dependency>\n"
+             + "        <groupId>org.eclipse.microprofile</groupId>\n"
+             + "        <artifactId>microprofile</artifactId>\n"
+             + "        <version>4.1</version>\n"
+             + "        <type>pom</type>\n"
+             + "        <scope>provided</scope>\n",
+          pom);
 
        // Dev mode should now run the generate features mojo
        assertTrue(getLogTail(), verifyLogMessageExists("Generated the following features:", 15000, logFile, ++generateFeaturesCount)); // mojo ran
-       assertTrue(generatedFeaturesFile.exists());
-       assertTrue(getLogTail(), lastModified < generatedFeaturesFile.lastModified());
        assertTrue(targetGeneratedFeaturesFile.exists());
+       assertTrue(getLogTail(), lastModified < targetGeneratedFeaturesFile.lastModified());
 
        // verify that mpHealth-3.0 is now in the generated features file
        assertTrue(getLogTail(), verifyLogMessageExists("mpHealth-3.1", 10000, generatedFeaturesFile));

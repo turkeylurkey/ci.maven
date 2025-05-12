@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019, 2023.
+ * (c) Copyright IBM Corporation 2019, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -543,8 +543,8 @@ public class BaseDevTest {
    }
 
    // get generated features file in source directory
-   protected static File getGeneratedFeaturesFile() throws Exception {
-      return getGeneratedFeaturesFile(null);
+   protected static File getSrcGeneratedFeaturesFile() throws Exception {
+      return getSrcGeneratedFeaturesFile(null);
    }
 
    // get generated features file in target directory
@@ -554,7 +554,7 @@ public class BaseDevTest {
 
    // get generated features file in source directory for the corresponding
    // libertyConfigModule (module name)
-   protected static File getGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
+   protected static File getSrcGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
       String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
       newFeatureFilePath += "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
       File newFeatureFile = new File(tempProj, newFeatureFilePath);
