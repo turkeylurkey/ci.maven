@@ -446,7 +446,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public boolean libertyGenerateFeatures(Collection<String> classes, boolean optimize) {
+        public boolean libertyGenerateFeatures(Collection<String> classes, File contextDir, boolean optimize) {
             try {
                 if (classes != null) {
                     Element[] classesElem = new Element[classes.size()];
@@ -456,11 +456,11 @@ public class DevMojo extends LooseAppSupport {
                         i++;
                     }
                     // generate features for only the classFiles passed
-                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), optimize);
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), contextDir, optimize);
                 } else {
                     // pass null for classFiles so that features are generated for ALL of the
                     // classes
-                    runLibertyMojoGenerateFeatures(null, optimize);
+                    runLibertyMojoGenerateFeatures(null, contextDir, optimize);
                 }
                 return true; // successfully generated features
             } catch (MojoExecutionException e) {
@@ -778,13 +778,13 @@ public class DevMojo extends LooseAppSupport {
                         if (generateFeatures) {
                             getLog().debug("Detected a change in the compile dependencies for "
                                     + buildFile + " , regenerating features");
-                            boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
+                            File tempConfig = createFeaturesTempDir(generatedFeaturesFile, configDirectory, null);
+                            boolean generateFeaturesSuccess = libertyGenerateFeatures(null, tempConfig, true);
                             if (generateFeaturesSuccess) {
                                 util.getJavaSourceClassPaths().clear();
+                                // install new generated features, will not trigger install-feature if the feature list has not changed
+                                util.installFeaturesToTempDir(generatedFeaturesFile, tempConfig, null);
                             }
-                            // install new generated features, will not trigger install-feature if the feature list has not changed
-                            util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
-                                generateFeaturesSuccess);
                         }
                         runLibertyMojoDeploy();
                     }
@@ -1098,11 +1098,12 @@ public class DevMojo extends LooseAppSupport {
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
+                File tempConfig = createFeaturesTempDir(generatedFeaturesFile, configDirectory, null);
                 boolean generateFeaturesSuccess = false;
                 if (optimizeGenerateFeatures && generateFeatures) {
                     getLog().debug("Detected a change in the compile dependencies, regenerating features");
                     // always optimize generate features on dependency change
-                    generateFeaturesSuccess = libertyGenerateFeatures(null, true);
+                    generateFeaturesSuccess = libertyGenerateFeatures(null, tempConfig, true);
                     if (generateFeaturesSuccess) {
                         util.getJavaSourceClassPaths().clear();
                     } else {
@@ -1149,8 +1150,9 @@ public class DevMojo extends LooseAppSupport {
                     } else if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
-                        util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
-                                generateFeaturesSuccess);
+                        if (generateFeaturesSuccess) {
+                            util.installFeaturesToTempDir(generatedFeaturesFile, tempConfig, null);
+                        }
                         runLibertyMojoDeploy();
                     }
                     if (installFeature) {
@@ -1684,7 +1686,7 @@ public class DevMojo extends LooseAppSupport {
             getLog().warn(
                     "The source configuration directory will be modified. Features will automatically be generated in a new file: "
                             + generatedFileCanonicalPath);
-            runLibertyMojoGenerateFeatures(null, true);
+            runLibertyMojoGenerateFeatures(null, null,  true);
         } catch (MojoExecutionException e) {
             if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
                 // PluginExecutionException indicates that the binary scanner jar could not be found
@@ -2181,7 +2183,7 @@ public class DevMojo extends LooseAppSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures(classFiles, optimize);
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, File contextDir, boolean optimize) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles, contextDir, optimize);
     }
 }
