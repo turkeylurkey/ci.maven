@@ -61,9 +61,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     public static final String NO_CLASSES_DIR_WARNING = "Could not find classes directory to generate features against. Liberty features will not be generated. "
             + "Ensure your project has first been compiled.";
 
-    // The executable file used to scan binaries for the Liberty features they use.
-    private File binaryScanner;
-
     @Parameter(property = "classFiles")
     private List<String> classFiles;
 
@@ -220,11 +217,12 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         // When using dev mode we always generate to a temporary directory so we can call install before writing to server dir.
         generationOutputDir = useTempDirAsOutput ? getGeneratedFeaturesTempDir() : generationContextDir;
 
-        binaryScanner = getBinaryScannerJarFromRepository();
-        BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
+        // The executable file used to scan binaries for the Liberty features they use.
+        File binaryScannerJar = getBinaryScannerJarFromRepository();
+        BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScannerJar);
 
         getLog().debug("--- Generate Features values ---");
-        getLog().debug("Binary scanner jar: " + binaryScanner.getName());
+        getLog().debug("Binary scanner jar: " + binaryScannerJar.getName());
         getLog().debug("optimize generate features: " + optimize);
         getLog().debug("useTempDirAsOutput (dev mode only): " + useTempDirAsOutput);
         getLog().debug("useTempDirAsContext (dev mode only): " + useTempDirAsContext);
@@ -282,7 +280,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             String logLocation = project.getBuild().getDirectory();
             String eeVersionArg = composeEEVersion(eeVersion);
             String mpVersionArg = composeMPVersion(mpVersion);
-            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, logLocation, eeVersionArg, mpVersionArg, optimize);
+            File baseFeatureListFile = getBaseFeatureListFileFromRepository();
+            File coreFeatureListFile = getBaseFeatureListFileFromRepository();
+            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, logLocation, 
+                eeVersionArg, mpVersionArg, baseFeatureListFile, coreFeatureListFile, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
@@ -440,6 +441,32 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     + BINARY_SCANNER_MAVEN_GROUP_ID + "." + BINARY_SCANNER_MAVEN_ARTIFACT_ID
                     + ".jar configured in your pom.xml.",
                     e);
+        }
+    }
+
+    /**
+     * Gets the file containing the Websphere or Open Liberty base feature list from the local cache.
+     * Downloads it first from connected repositories such as Maven Central if a newer release is available than the cached version.
+     * Note: Maven updates artifacts daily by default based on the last updated timestamp. Users should use 'mvn -U' to force updates if needed.
+     * 
+     * @return The File object of the feature list in the local cache.
+     * @throws PluginExecutionException
+     */
+    private File getBaseFeatureListFileFromRepository() throws PluginExecutionException {
+        try {
+            getLog().warn ("retrieve the artifact " + OLBASE_FEATURELIST_GROUP_ID + "."
+                    + OLBASE_FEATURELIST_ARTIFACT_ID + "." + OLBASE_FEATURELIST_TYPE + "." + OLBASE_FEATURELIST_VERSION
+                    + " needed for liberty:generate-features. Ensure you have a connection to Maven Central or another repository that contains the "
+                    + OLBASE_FEATURELIST_GROUP_ID + "." + OLBASE_FEATURELIST_ARTIFACT_ID
+                    + " configured in your pom.xml.");
+            return getArtifact(OLBASE_FEATURELIST_GROUP_ID, OLBASE_FEATURELIST_ARTIFACT_ID, OLBASE_FEATURELIST_TYPE, OLBASE_FEATURELIST_VERSION).getFile();
+        } catch (Exception e) {
+            getLog().debug("Could not retrieve the artifact " + OLBASE_FEATURELIST_GROUP_ID + "."
+                    + OLBASE_FEATURELIST_ARTIFACT_ID + "." + OLBASE_FEATURELIST_TYPE + "." + OLBASE_FEATURELIST_VERSION
+                    + " needed for liberty:generate-features. Ensure you have a connection to Maven Central or another repository that contains the "
+                    + OLBASE_FEATURELIST_GROUP_ID + "." + OLBASE_FEATURELIST_ARTIFACT_ID
+                    + " configured in your pom.xml.");
+            return null;
         }
     }
 
