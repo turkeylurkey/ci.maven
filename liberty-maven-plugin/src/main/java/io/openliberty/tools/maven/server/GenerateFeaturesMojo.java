@@ -26,6 +26,8 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.maven.Maven;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -216,7 +218,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
         // When using dev mode we always generate to a temporary directory so we can call install before writing to server dir.
         generationOutputDir = useTempDirAsOutput ? getGeneratedFeaturesTempDir() : generationContextDir;
+//
 
+//
         // The executable file used to scan binaries for the Liberty features they use.
         File binaryScannerJar = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScannerJar);
@@ -468,6 +472,30 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     + " configured in your pom.xml.");
             return null;
         }
+    }
+
+    /*
+     * Gets the file containing the Websphere or Open Liberty base feature list from the local cache.
+     * Downloads it first from connected repositories such as Maven Central if a newer release is available than the cached version.
+     * Note: Maven updates artifacts daily by default based on the last updated timestamp. Users should use 'mvn -U' to force updates if needed.
+     * 
+     * @return The File object of the feature list in the local cache.
+     */
+    private void getFeatureListFiles(File baseFeatureListFile, File coreFeatureListFile) {
+        String libertyVersion = null;
+
+        // Check if libertyRuntimeVersion property is set (highest priority)
+        if (libertyRuntimeVersion != null && !libertyRuntimeVersion.isEmpty()) {
+            libertyVersion = libertyRuntimeVersion;
+        } else if (assemblyArtifact != null) {
+            // Resolve the artifact to get its version
+            Artifact artifact = getResolvedArtifact(assemblyArtifact);
+            if (artifact != null) {
+                libertyVersion = artifact.getVersion();
+            }
+        }
+        getLog().warn ("--- libertyVersion=" + libertyVersion);
+        
     }
 
     // Return a list containing the classes directory of the Maven projects (upstream projects and main project)
