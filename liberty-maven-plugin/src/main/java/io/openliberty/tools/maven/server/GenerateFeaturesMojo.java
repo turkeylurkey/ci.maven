@@ -26,8 +26,8 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -610,19 +610,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     // umbrella dependency does not exist, do nothing
                 }
             }
-            if (!eeVersionsDetected.isEmpty()) {
-                eeVersion = eeVersionsDetected.iterator().next();
-                // if multiple EE versions are found across multiple modules, return the latest version
-                for (String ver : eeVersionsDetected) {
-                    if (ver.compareTo(eeVersion) > 0) {
-                        eeVersion = ver;
-                    }
-                }
-            }
+            eeVersion = findMaxVersion(eeVersionsDetected);
             if (eeVersionsDetected.size() > 1) {
                 getLog().debug(
-                        "Multiple Java and/or Jakarta EE versions found across multiple project modules, using the latest version ("
-                                + eeVersion + ") found to generate Liberty features.");
+                        "Multiple Java and/or Jakarta EE versions found across multiple project modules, using the latest version (" +
+                        eeVersion + ") found to generate Liberty features.");
             }
         }
         return eeVersion;
@@ -640,17 +632,49 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private String getEEVersion(MavenProject project) throws NoUmbrellaDependencyException {
         if (project != null) {
             List<Dependency> dependencies = project.getDependencies();
+            Set<String> eeVersionsDetected = new HashSet<String>();
             for (Dependency d : dependencies) {
-                if (!d.getScope().equals("provided")) {
+                String scope = d.getScope();
+                String groupId = d.getGroupId();
+                String artifactId = d.getArtifactId();
+                if (scope == null || groupId == null || artifactId == null) {
                     continue;
                 }
-                if ((d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) ||
-                    (d.getGroupId().equals("jakarta.platform") && d.getArtifactId().equals("jakarta.jakartaee-api"))) {
-                    return d.getVersion();
+                if (!scope.equals("provided") && !scope.equals("compile") && !scope.equals("import")) {
+                    continue;
+                }
+                if ((groupId.equals("javax") && artifactId.equals("javaee-api")) ||
+                    (groupId.equals("jakarta.platform") &&
+                        (artifactId.equals("jakarta.jakartaee-api") ||
+                        artifactId.equals("jakarta.jakartaee-web-api") ||
+                        artifactId.equals("jakarta.jakartaee-core-api") ||
+                        artifactId.equals("jakarta.jakartaee-bom") ||
+                        artifactId.equals("jakartaee-api-parent")))) {
+                    eeVersionsDetected.add(d.getVersion());
+                }
+            }
+            return findMaxVersion(eeVersionsDetected);
+        }
+        throw new NoUmbrellaDependencyException();
+    }
+
+    // Find the highest version number in the set of strings
+    private String findMaxVersion(Set<String> eeVersionsDetected) {
+        String maxVersion = null;
+        if (!eeVersionsDetected.isEmpty()) {
+            maxVersion = eeVersionsDetected.iterator().next();
+            ComparableVersion cMaxVersion = new ComparableVersion(maxVersion);
+            // if multiple EE versions are found across multiple modules, return the latest version
+            for (String ver : eeVersionsDetected) {
+                ComparableVersion cVer = new ComparableVersion(ver);
+                getLog().debug("GenerateFeraturesMojo.findMaxVersion, ver=" + ver);
+                if (cVer.compareTo(cMaxVersion) > 0) {
+                    maxVersion = ver;
+                    cMaxVersion = cVer;
                 }
             }
         }
-        throw new NoUmbrellaDependencyException();
+        return maxVersion;
     }
 
     /**
