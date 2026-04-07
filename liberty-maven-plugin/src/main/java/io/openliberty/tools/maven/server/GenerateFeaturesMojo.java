@@ -221,9 +221,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
         // When using dev mode we always generate to a temporary directory so we can call install before writing to server dir.
         generationOutputDir = useTempDirAsOutput ? getGeneratedFeaturesTempDir() : generationContextDir;
-//
 
-//
         // The executable file used to scan binaries for the Liberty features they use.
         File binaryScannerJar = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScannerJar);
