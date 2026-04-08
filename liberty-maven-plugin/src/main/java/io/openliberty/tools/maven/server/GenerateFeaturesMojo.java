@@ -493,6 +493,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      *         null if an EE version is not found or the version number is out of range
      */
     private static final String JAKARTA_PLATFORM_NAME="jakartaee-"; // jakartaee-10.0 etc.
+    private static final String JAVAEE_PLATFORM_NAME="javaee-"; // javaee-7.0 etc.
     public String getEEVersion(List<MavenProject> mavenProjects, ServerFeatureUtil servUtil) {
         String eeVersion = null;
         if (mavenProjects != null) {
@@ -523,8 +524,13 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                                 + eeVersion + ") found to generate Liberty features.");
             }
         }
+        // if the dependencies do not indicate the Jakarta version then reference the platform specified in server.xml
+        // E.g. pom may specify jakarta.persistence:jakarta.persistence-api:2.2.3 to compile but does not specify Jakarta 9.1
         if (eeVersion == null) {
             eeVersion = getPlatformVersion(JAKARTA_PLATFORM_NAME, servUtil);
+        }
+        if (eeVersion == null) {
+            eeVersion = getPlatformVersion(JAVAEE_PLATFORM_NAME, servUtil);
         }
         return eeVersion;
     }
