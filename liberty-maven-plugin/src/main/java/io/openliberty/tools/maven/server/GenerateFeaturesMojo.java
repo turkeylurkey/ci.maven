@@ -278,6 +278,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             }
             eeVersion = getEEVersion(mavenProjects);
             mpVersion = getMPVersion(mavenProjects);
+            if (eeVersion == null && mpVersion == null) {
+                getLog().warn("This application does not specify any umbrella dependencies in the build file or platforms in the server.xml. " +
+                    "The generate features goal can perform more accurately if the application specifies the specific Java EE, Jakarta EE or MicroProfile version that the application uses.");
+            }
 
             String logLocation = project.getBuild().getDirectory();
             String eeVersionArg = composeEEVersion(eeVersion);
