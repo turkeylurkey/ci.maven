@@ -136,19 +136,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
     @Override
     protected void init() throws MojoExecutionException {
-        // @see io.openliberty.tools.maven.BasicSupport#init()
-        // Skip server directories setup when generate features only requires
-        // the files in the src config directory.
-        // The server directories to be set up: install dir, wlp dir, outputdir, etc.
-        if (generateToSrc) {
-            this.skipServerConfigSetup = true;
-        }
-
         super.init();
         // Ensure server dir exists to generate features to the $serverDirectory/configDropins/overrides/generated-features.xml
-        // if (!generateToSrc && !serverDirectory.exists()) {
-        //     throw new MojoExecutionException("The 'generate-features' goal requires an existing Liberty server in directory " + serverDirectory.getPath() + ". Please run the 'liberty:create' goal before 'generate-features'.");
-        // }
+        if (!generateToSrc && !serverDirectory.exists()) {
+            throw new MojoExecutionException("The 'generate-features' goal requires an existing Liberty server in directory " + serverDirectory.getPath() + ". Please run the 'liberty:create' goal before 'generate-features'.");
+        }
     }
 
     @Override
@@ -219,10 +211,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 return;
             }
         }
-        getLog().warn ("generateToSrc="+generateToSrc);
-        getLog().warn ("useTempDirAsOutput (dev mode only): " + useTempDirAsOutput);
-        getLog().warn ("isDevMode="+isDevMode);
-
 
         if (useTempDirAsContext) {
             // When this parameter is true it is required that the caller has copied the config into this dir.
@@ -272,7 +260,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
 
         Set<String> existingFeatures = getServerFeatures(servUtil, generatedFiles, optimize);
-        getLog().warn ("existingFeatures = " + existingFeatures);
         Set<String> nonCustomFeatures = new HashSet<String>(); // binary scanner only handles actual Liberty features
         for (String feature : existingFeatures) { // custom features are "usr:feature-1.0" or "myExt:feature-2.0"
             if (!feature.contains(":")) nonCustomFeatures.add(feature);
@@ -370,12 +357,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         if (shouldWriteToServerDir) {
             serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
         }
-        getLog().warn ("!isDevMode=" + !isDevMode);
-        getLog().warn ("generateToSrc=" + generateToSrc);
-        getLog().warn ("serverDirectory=" + serverDirectory);
-        getLog().warn ("serverDirectory.exists()=" + serverDirectory.exists());
-        getLog().warn ("shouldWriteToServerDir=" + shouldWriteToServerDir);
-        getLog().warn ("serverDirXmlFile=" + serverDirXmlFile);
 
         try {
             if (missingLibertyFeatures.size() > 0) {
@@ -397,10 +378,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
                     // For standalone mode with generateToSrc=true, also write to server directory
                     if (shouldWriteToServerDir) {
-                        getLog().warn ("Also creating file " + serverDirXmlFile.getAbsolutePath());
                         if (writeToServerDir(configDocument, serverDirXmlFile, true)) {
                             getLog().debug("Also created file " + serverDirXmlFile.getAbsolutePath());
-                            getLog().warn ("Also created file " + serverDirXmlFile.getAbsolutePath());
                         }
                     }
                 } else {
@@ -419,7 +398,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
                     // For standalone mode with generateToSrc=true, also write to server directory
                     if (shouldWriteToServerDir) {
-                        getLog().warn ("Also maybe rewriting file " + serverDirXmlFile.getAbsolutePath());
                         writeToServerDir(configDocument, serverDirXmlFile, serverDirXmlFile.exists());
                     }
                 }
@@ -451,7 +429,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     // Get the features from the server config and optionally exclude the specified config files from the search.
     private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
         servUtil.setLowerCaseFeatures(false);
-        getLog().warn (" generatedFiles="+generatedFiles+" exclu="+excludeGenerated);
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
         FeaturesPlatforms fp = servUtil.getServerFeatures(generationContextDir, serverXmlFile,
