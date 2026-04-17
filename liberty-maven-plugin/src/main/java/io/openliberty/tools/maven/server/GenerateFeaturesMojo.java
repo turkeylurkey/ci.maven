@@ -460,7 +460,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     }
 
     /*
-     * Gets the file containing the Open Liberty base feature list from the local cache.
+     * Gets the file containing the Open Liberty feature list from the local cache.
      * Downloads it first from connected repositories such as Maven Central if a newer release is available than the cached version.
      * Note: Maven updates artifacts daily by default based on the last updated timestamp. Users should use 'mvn -U' to force
      * updates if needed.
