@@ -654,16 +654,16 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
     // Find the highest version number in the set of strings
     // returns null if the set of strings is empty
-    private String findMaxVersion(Set<String> eeVersionsDetected) {
+    private String findMaxVersion(Set<String> versionsDetected) {
         String maxVersion = null;
-        if (!eeVersionsDetected.isEmpty()) {
-            maxVersion = eeVersionsDetected.iterator().next();
-            if (eeVersionsDetected.size() == 1) {
+        if (!versionsDetected.isEmpty()) {
+            maxVersion = versionsDetected.iterator().next();
+            if (versionsDetected.size() == 1) {
                 return maxVersion;
             }
             ComparableVersion cMaxVersion = new ComparableVersion(maxVersion);
-            // if multiple EE versions are found across multiple modules, return the latest version
-            for (String ver : eeVersionsDetected) {
+            // if multiple EE/MP versions are found across multiple modules, return the latest version
+            for (String ver : versionsDetected) {
                 ComparableVersion cVer = new ComparableVersion(ver);
                 getLog().debug("GenerateFeraturesMojo.findMaxVersion, ver=" + ver);
                 if (cVer.compareTo(cMaxVersion) > 0) {
