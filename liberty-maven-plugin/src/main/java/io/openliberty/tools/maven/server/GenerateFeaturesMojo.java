@@ -479,7 +479,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             libertyVersion = OPEN_LIBERTY_FEATURE_LIST_START;
         }
         libertyVersion = "[" + libertyVersion + "]"; // Maven syntax to specify an exact version, not a range
-        return getArtifact(OLBASE_FEATURELIST_GROUP_ID, OLBASE_FEATURELIST_ARTIFACT_ID, OLBASE_FEATURELIST_TYPE, libertyVersion).getFile();
+        return getArtifact(OL_FEATURELIST_GROUP_ID, OL_FEATURELIST_ARTIFACT_ID, OL_FEATURELIST_TYPE, libertyVersion).getFile();
     }
 
     /*
