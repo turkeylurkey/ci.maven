@@ -653,6 +653,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     }
 
     // Find the highest version number in the set of strings
+    // returns null if the set of strings is empty
     private String findMaxVersion(Set<String> eeVersionsDetected) {
         String maxVersion = null;
         if (!eeVersionsDetected.isEmpty()) {
