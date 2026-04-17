@@ -692,15 +692,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     mpVersionsDetected.add(ver);
                 }
             }
-            if (!mpVersionsDetected.isEmpty()) {
-                mpVersion = mpVersionsDetected.iterator().next();
-                // if multiple MP versions are found across multiple modules, return the latest version
-                for (String ver : mpVersionsDetected) {
-                    if (ver.compareTo(mpVersion) > 0) {
-                        mpVersion = ver;
-                    }
-                }
-            }
+            // if multiple MP versions are found across multiple modules, return the latest version
+            mpVersion = findMaxVersion(mpVersionsDetected);
             if (mpVersionsDetected.size() > 1) {
                 getLog().info("Multiple MicroProfile versions found across multiple project modules, using the latest version (" +
                     mpVersion + ") found to generate Liberty features.");
