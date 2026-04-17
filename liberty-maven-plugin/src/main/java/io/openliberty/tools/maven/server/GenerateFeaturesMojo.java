@@ -378,7 +378,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
                     // For standalone mode with generateToSrc=true, also write to server directory
                     if (shouldWriteToServerDir) {
-                        if (writeToServerDir(configDocument, serverDirXmlFile, true)) {
+                        if (writeToServerDir(configDocument, serverDirXmlFile)) {
                             getLog().debug("Also created file " + serverDirXmlFile.getAbsolutePath());
                         }
                     }
@@ -397,8 +397,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     configDocument.writeXMLDocument(generatedXmlFile);
 
                     // For standalone mode with generateToSrc=true, also write to server directory
-                    if (shouldWriteToServerDir) {
-                        writeToServerDir(configDocument, serverDirXmlFile, serverDirXmlFile.exists());
+                    if (shouldWriteToServerDir && serverDirXmlFile.exists()) {
+                        writeToServerDir(configDocument, serverDirXmlFile);
                     }
                 }
             }
@@ -413,15 +413,18 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
     }
 
-    private boolean writeToServerDir(ServerConfigXmlDocument configDocument, File serverDirXmlFile, boolean exists) {
-        if (exists) {
-            try {
-                configDocument.writeXMLDocument(serverDirXmlFile);
-            } catch (TransformerException | IOException e) {
-                getLog().warn("Failed to write generated-features.xml to server directory: "
-                    + serverDirXmlFile.getAbsolutePath() + ". " + e.getMessage());
-                return false;
-            }
+    /*
+     * This routine writes an xml document to the specififed file and returns false if there is an exception 
+     * while writing or true otherwise.
+     */
+    private boolean writeToServerDir(ServerConfigXmlDocument configDocument, File serverDirXmlFile) {
+        try {
+            configDocument.writeXMLDocument(serverDirXmlFile);
+        } catch (TransformerException | IOException e) {
+            getLog().warn("Failed to write generated-features.xml to server directory: "
+                + serverDirXmlFile.getAbsolutePath() + ". Ensure your id has write permission to the server configuration directory. "
+                + e.getMessage());
+            return false;
         }
         return true;
     }
