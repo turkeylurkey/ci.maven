@@ -64,7 +64,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     public static final String NO_CLASSES_DIR_WARNING = "Could not find classes directory to generate features against. Liberty features will not be generated. "
             + "Ensure your project has first been compiled.";
     private static final String OPEN_LIBERTY_PRODUCT_ID = "io.openliberty";
-    private static final String CLOSED_LIBERTY_PRODUCT_ID = "com.ibm.websphere.appserver.runtime";
+    private static final String WEBSPHERE_LIBERTY_PRODUCT_ID = "com.ibm.websphere.appserver.runtime";
 
     @Parameter(property = "classFiles")
     private List<String> classFiles;
@@ -289,9 +289,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             File coreFeatureListFile = null;
             String libertyGroupId = getLibertyRuntimeGroupId();
             getLog().debug("Resolve the liberty groupId used to fetch feature lists, getLibertyRuntimeGroupId()="+libertyGroupId);
-            if (CLOSED_LIBERTY_PRODUCT_ID.equals(libertyGroupId)) {
-                baseFeatureListFile = getClosedFeatureListFile(FEATURE_LIST_BASE);
-                coreFeatureListFile = getClosedFeatureListFile(FEATURE_LIST_CORE);
+            if (WEBSPHERE_LIBERTY_PRODUCT_ID.equals(libertyGroupId)) {
+                baseFeatureListFile = getWebSphereFeatureListFile(FEATURE_LIST_BASE);
+                coreFeatureListFile = getWebSphereFeatureListFile(FEATURE_LIST_CORE);
             } else if (OPEN_LIBERTY_PRODUCT_ID.equals(libertyGroupId)) {
                 // For open liberty pass the same file to each parameter
                 baseFeatureListFile = getOpenFeatureListFile();
@@ -467,7 +467,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * 
      * @return The File object of the feature list in the local cache or null if version number not available
      */
-    public static String OPEN_LIBERTY_FEATURE_LIST_START = "25.0.0.7";
+    private static String OPEN_LIBERTY_FEATURE_LIST_START = "25.0.0.7";
     private File getOpenFeatureListFile() throws MojoExecutionException {
         String libertyVersion = getLibertyRuntimeVersion();
         if (libertyVersion == null) {
@@ -483,19 +483,19 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     }
 
     /*
-     * Gets the file containing the Websphere or Open Liberty base feature list from the local cache.
+     * Gets the file containing the Websphere base feature list from the local cache.
      * Downloads it first from connected repositories such as Maven Central if a newer release is available than the cached version.
      * Note: Maven updates artifacts daily by default based on the last updated timestamp. Users should use 'mvn -U' to force
      * updates if needed.
      * 
      * @return The File object of the feature list in the local cache.
      */
-    private static String CLOSED_LIBERTY_FEATURE_LIST_START1 = "25.0.0.7";
-    private static String CLOSED_LIBERTY_FEATURE_LIST_START2 = "25.0.0.10";
-    private static String CLOSED_LIBERTY_FEATURE_LIST_END = "25.0.0.12";
+    private static String WEBSPHERE_LIBERTY_FEATURE_LIST_START = "25.0.0.7";
+    private static String WEBSPHERE_LIBERTY_FEATURE_LIST_CONTINUE = "25.0.0.10";
+    private static String WEBSPHERE_LIBERTY_FEATURE_LIST_END = "25.0.0.12";
     private static String FEATURE_LIST_BASE = "base";
     private static String FEATURE_LIST_CORE = "core";
-    private File getClosedFeatureListFile(String featureListVar) throws MojoExecutionException {
+    private File getWebSphereFeatureListFile(String featureListVar) throws MojoExecutionException {
         // Feature lists are only available for 25.0.0.7 and 25.0.0.10-25.0.0.12.
         // For releases earlier than 25.0.0.10 use 25.0.0.7, for releases after 25.0.0.12 use 25.0.0.12.
         String libertyGroupId, libertyArtifactId;
@@ -505,14 +505,14 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
         // There is a value for 25.0.0.7 but not for 25.0.0.8 or 25.0.0.9 and none for <25.0.0.7
         // so for any liberty <25.0.0.10 use the 07 values
-        if (VersionUtility.compareArtifactVersion(libertyVersion, CLOSED_LIBERTY_FEATURE_LIST_START2, true) < 0) {
+        if (VersionUtility.compareArtifactVersion(libertyVersion, WEBSPHERE_LIBERTY_FEATURE_LIST_CONTINUE, true) < 0) {
             libertyGroupId = WS1_FEATURELIST_GROUP_ID;
-            libertyVersion = CLOSED_LIBERTY_FEATURE_LIST_START1;
+            libertyVersion = WEBSPHERE_LIBERTY_FEATURE_LIST_START;
         } else { // 25.0.0.10 and up
             libertyGroupId = WS2_FEATURELIST_GROUP_ID;
             // if >25.0.0.12 just use 25.0.0.12
-            if (VersionUtility.compareArtifactVersion(libertyVersion, CLOSED_LIBERTY_FEATURE_LIST_END, true) > 0) {
-                libertyVersion = CLOSED_LIBERTY_FEATURE_LIST_END;
+            if (VersionUtility.compareArtifactVersion(libertyVersion, WEBSPHERE_LIBERTY_FEATURE_LIST_END, true) > 0) {
+                libertyVersion = WEBSPHERE_LIBERTY_FEATURE_LIST_END;
             } // else liberty version is 25.0.0.10-25.0.0.12
         }
         if (featureListVar.equals(FEATURE_LIST_BASE)) {
@@ -521,7 +521,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             libertyArtifactId = WSCORE_FEATURELIST_ARTIFACT_ID;
         }
         libertyVersion = "[" + libertyVersion + "]"; // Maven syntax to specify an exact version, not a range
-        getLog().debug("Closed liberty feature list coordinates, libertyGroupId="+libertyGroupId+" libertyArtifactId="+libertyArtifactId+" WS_FEATURELIST_TYPE="+WS_FEATURELIST_TYPE+" libertyVersion="+libertyVersion);
+        getLog().debug("WebSphere Liberty feature list coordinates, libertyGroupId="+libertyGroupId+" libertyArtifactId="+libertyArtifactId+" WS_FEATURELIST_TYPE="+WS_FEATURELIST_TYPE+" libertyVersion="+libertyVersion);
         return getArtifact(libertyGroupId, libertyArtifactId, WS_FEATURELIST_TYPE, libertyVersion).getFile();
     }
 
