@@ -279,8 +279,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 // user specified features
                 getLog().warn(NO_CLASSES_DIR_WARNING);
             }
-            eeVersion = getEEVersion(mavenProjects);
-            mpVersion = getMPVersion(mavenProjects);
+            eeVersion = getEEVersion(mavenProjects, servUtil);
+            mpVersion = getMPVersion(mavenProjects, servUtil);
 
             String logLocation = project.getBuild().getDirectory();
             String eeVersionArg = composeEEVersion(eeVersion);
@@ -406,8 +406,15 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
     }
 
-    // Get the features from the server config and optionally exclude the specified config files from the search.
     private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
+        return getServerFeaturesPlatforms(servUtil, generatedFiles, excludeGenerated, true);
+    }
+    private Set<String> getServerPlatforms(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
+        return getServerFeaturesPlatforms(servUtil, generatedFiles, excludeGenerated, false); // platforms
+    }
+
+    // Get the features from the server config and optionally exclude the specified config files from the search.
+    private Set<String> getServerFeaturesPlatforms(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated, boolean features) {
         servUtil.setLowerCaseFeatures(false);
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
@@ -416,8 +423,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         servUtil.setLowerCaseFeatures(true);
         if (fp == null) {
             return new HashSet<String>();
-        }
-        return fp.getFeatures();
+        } else if (features) {
+            return fp.getFeatures();
+        } // else
+        return fp.getPlatforms();
     }
 
     // returns the features specified in the generated-features.xml file in the generation context directory
@@ -595,7 +604,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * @return the latest version of EE detected across multiple project modules,
      *         null if an EE version is not found or the version number is out of range
      */
-    public String getEEVersion(List<MavenProject> mavenProjects) {
+    private static final String JAKARTA_PLATFORM_NAME="jakartaee-"; // jakartaee-10.0 etc.
+    private static final String JAVAEE_PLATFORM_NAME="javaee-"; // javaee-7.0 etc.
+    public String getEEVersion(List<MavenProject> mavenProjects, ServerFeatureUtil servUtil) {
         String eeVersion = null;
         if (mavenProjects != null) {
             Set<String> eeVersionsDetected = new HashSet<String>();
@@ -611,6 +622,14 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 getLog().info("Multiple Java EE and/or Jakarta EE versions found across multiple project modules, using the latest version (" +
                     eeVersion + ") found to generate Liberty features.");
             }
+        }
+        // if the dependencies do not indicate the Jakarta version then reference the platform specified in server.xml
+        // E.g. pom may specify jakarta.persistence:jakarta.persistence-api:2.2.3 to compile but does not specify Jakarta 9.1
+        if (eeVersion == null) {
+            eeVersion = getPlatformVersion(JAKARTA_PLATFORM_NAME, servUtil);
+        }
+        if (eeVersion == null) {
+            eeVersion = getPlatformVersion(JAVAEE_PLATFORM_NAME, servUtil);
         }
         return eeVersion;
     }
@@ -682,7 +701,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * @return the latest version of MP detected across multiple project modules,
      *         null if an MP version is not found or the version number is out of range
      */
-    public String getMPVersion(List<MavenProject> mavenProjects) {
+    private static final String MP_PLATFORM_NAME="microProfile-"; // microProfile-7.0 etc.
+    public String getMPVersion(List<MavenProject> mavenProjects, ServerFeatureUtil servUtil) {
         String mpVersion = null;
         if (mavenProjects != null) {
             Set<String> mpVersionsDetected = new HashSet<String>();
@@ -699,6 +719,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 getLog().info("Multiple MicroProfile versions found across multiple project modules, using the latest version (" +
                     mpVersion + ") found to generate Liberty features.");
             }
+        }
+        if (mpVersion == null) {
+            mpVersion = getPlatformVersion(MP_PLATFORM_NAME, servUtil);
         }
         return mpVersion;
     }
@@ -723,6 +746,19 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             if (d.getGroupId().equals("org.eclipse.microprofile") &&
                     d.getArtifactId().equals("microprofile")) {
                 return d.getVersion();
+            }
+        }
+        return null;
+    }
+
+    // Retrieve all platforms from the server.xml and related files and look for the platform specified.
+    // Platforms have the format jakartaee-10.0 or microProfile-7.1. Just return the version number (10.0 or 7.1 in these examples).
+    private String getPlatformVersion(String platformName, ServerFeatureUtil servUtil) {
+        Set<String> platforms = getServerPlatforms(servUtil, null, false);
+        for (String p : platforms) {
+            getLog().debug("GenerateFeaturesMojo.getPlatformVersion, searching for platform:" + platformName + " platform=" + p);
+            if (p.startsWith(platformName)) {
+                return p.substring(platformName.length());
             }
         }
         return null;
