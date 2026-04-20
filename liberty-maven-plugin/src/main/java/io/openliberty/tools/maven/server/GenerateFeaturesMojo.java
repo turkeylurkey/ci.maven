@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -287,20 +288,23 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             String logLocation = project.getBuild().getDirectory();
             String eeVersionArg = composeEEVersion(eeVersion);
             String mpVersionArg = composeMPVersion(mpVersion);
-            File baseFeatureListFile = null;
-            File coreFeatureListFile = null;
+
+            Map featureListFileMap = new HashMap<String, File>();
             String libertyGroupId = getLibertyRuntimeGroupId();
             getLog().debug("Resolve the liberty groupId used to fetch feature lists, getLibertyRuntimeGroupId()="+libertyGroupId);
             if (WEBSPHERE_LIBERTY_PRODUCT_ID.equals(libertyGroupId)) {
-                baseFeatureListFile = getWebSphereFeatureListFile(FEATURE_LIST_BASE);
-                coreFeatureListFile = getWebSphereFeatureListFile(FEATURE_LIST_CORE);
+                File baseFeatureListFile = getWebSphereFeatureListFile(FEATURE_LIST_BASE);
+                featureListFileMap.put(WSBASE_FEATURELIST_KEY, baseFeatureListFile);
+                File coreFeatureListFile = getWebSphereFeatureListFile(FEATURE_LIST_CORE);
+                featureListFileMap.put(WSCORE_FEATURELIST_KEY, coreFeatureListFile);
             } else if (OPEN_LIBERTY_PRODUCT_ID.equals(libertyGroupId)) {
                 // For open liberty pass the same file to each parameter
-                baseFeatureListFile = getOpenFeatureListFile();
-                coreFeatureListFile = baseFeatureListFile;
-            } // else should not happen, just pass null values
+                File featureListFile = getOpenFeatureListFile();
+                featureListFileMap.put(OL_FEATURELIST_KEY, featureListFile);
+            } // else should not happen, just pass empty map
+
             scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, logLocation, 
-                eeVersionArg, mpVersionArg, baseFeatureListFile, coreFeatureListFile, optimize);
+                eeVersionArg, mpVersionArg, featureListFileMap, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
