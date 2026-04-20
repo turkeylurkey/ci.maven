@@ -84,6 +84,16 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private boolean generateToSrc;
 
     /**
+     * The isDevMode parameter is for internal use only. It is not for users.
+     * This parameter must only be set to true when this mojo is called from dev mode and false otherwise.
+     * This parameter is added to support generateToSrc and to cause writing the generated features file
+     * to the server directory (if it exists) in stand-alone mode (not dev mode) in order to save the user
+     * having to copy it manually.
+     */
+    @Parameter(property = "isDevMode", defaultValue = "false")
+    private boolean isDevMode;
+
+    /**
      * The useTempDirAsOutput parameter is for internal use only. It is not for users.
      * The parameter is only used when generateToSrc is false meaning we generate to serverDir.
      * It is needed in dev mode because the server is running and we need to ensure the features
@@ -128,16 +138,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
     @Override
     protected void init() throws MojoExecutionException {
-        // @see io.openliberty.tools.maven.BasicSupport#init()
-        // Skip server directories setup when generate features only requires
-        // the files in the src config directory.
-        // The server directories to be set up: install dir, wlp dir, outputdir, etc.
-        if (generateToSrc) {
-            this.skipServerConfigSetup = true;
-        }
-
         super.init();
-    }
+   }
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -364,6 +366,14 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         // generate the new features into an xml file in the correct context directory
         // The ServerConfigXmlDocument class will create the directories if needed.
         File generatedXmlFile = new File(generationOutputDir, GENERATED_FEATURES_FILE_PATH);
+
+        // For standalone goal (not dev mode) with generateToSrc=true, also write to server dir if it exists
+        boolean shouldWriteToServerDir = !isDevMode && generateToSrc && (serverDirectory != null) && serverDirectory.exists();
+        File serverDirXmlFile = null;
+        if (shouldWriteToServerDir) {
+            serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
+        }
+
         try {
             if (missingLibertyFeatures.size() > 0) {
                 Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, generatedXmlFile);
@@ -381,6 +391,13 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     getLog().info("Generated the following features: " + missingLibertyFeatures);
                     configDocument.writeXMLDocument(generatedXmlFile);
                     getLog().debug("Created file " + generatedXmlFile.getAbsolutePath());
+
+                    // For standalone mode with generateToSrc=true, also write to server directory
+                    if (shouldWriteToServerDir) {
+                        if (writeToServerDir(configDocument, serverDirXmlFile)) {
+                            getLog().debug("Also created file " + serverDirXmlFile.getAbsolutePath());
+                        }
+                    }
                 } else {
                     getLog().info("Regenerated the following features: " + missingLibertyFeatures);
                 }
@@ -394,16 +411,38 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     Element featureManagerElem = configDocument.createFeatureManager();
                     configDocument.createComment(featureManagerElem, NO_NEW_FEATURES_COMMENT);
                     configDocument.writeXMLDocument(generatedXmlFile);
+
+                    // For standalone mode with generateToSrc=true, also write to server directory
+                    if (shouldWriteToServerDir && serverDirXmlFile.exists()) {
+                        writeToServerDir(configDocument, serverDirXmlFile);
+                    }
                 }
             }
         } catch (ParserConfigurationException | TransformerException | IOException e) {
             getLog().debug("Exception creating the server features file", e);
-                throw new MojoExecutionException(
-                        "Automatic generation of features failed. Error attempting to create the "
-                                + GENERATED_FEATURES_FILE_NAME
-                                + ". Ensure your id has write permission to the server configuration directory.",
-                        e);
+            throw new MojoExecutionException(
+                    "Automatic generation of features failed. Error attempting to create the "
+                            + generatedXmlFile.getAbsolutePath()
+                            + ". Ensure your id has write permission to the directory the generated features file will be written to.",
+                    e);
         }
+
+    }
+
+    /*
+     * This routine writes an xml document to the specififed file and returns false if there is an exception 
+     * while writing or true otherwise.
+     */
+    private boolean writeToServerDir(ServerConfigXmlDocument configDocument, File serverDirXmlFile) {
+        try {
+            configDocument.writeXMLDocument(serverDirXmlFile);
+        } catch (TransformerException | IOException e) {
+            getLog().warn("Failed to write generated-features.xml to server directory: "
+                + serverDirXmlFile.getAbsolutePath() + ". Ensure your id has write permission to the server configuration directory. "
+                + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {

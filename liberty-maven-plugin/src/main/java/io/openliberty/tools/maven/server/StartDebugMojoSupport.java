@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2025.
+ * (C) Copyright IBM Corporation 2014, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -247,6 +247,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         if (classFiles != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
         }
+        config.addChild(element(name("isDevMode"), "true").toDom());
         config.addChild(element(name("optimize"), Boolean.toString(optimize)).toDom());
         config.addChild(element(name("generateToSrc"), Boolean.toString(generateToSrc)).toDom());
         config.addChild(element(name("useTempDirAsOutput"), Boolean.toString(useTmpDirOut)).toDom());
