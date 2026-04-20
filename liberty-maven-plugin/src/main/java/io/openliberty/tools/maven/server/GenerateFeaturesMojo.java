@@ -423,7 +423,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             throw new MojoExecutionException(
                     "Automatic generation of features failed. Error attempting to create the "
                             + generatedXmlFile.getAbsolutePath()
-                            + ". Ensure your id has write permission to the server configuration directory.",
+                            + ". Ensure your id has write permission to the directory the generated features file will be written to.",
                     e);
         }
 
