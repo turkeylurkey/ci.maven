@@ -40,7 +40,12 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>3.4.2</version>
+            <version>4.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-xml</artifactId>
+            <version>4.0.3</version>
         </dependency>
     </dependencies>
 
@@ -56,6 +61,7 @@
                     <reuseForks>true</reuseForks>
                     <forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
                     <argLine>-enableassertions</argLine>
+                    <runOrder>alphabetical</runOrder>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
                         <include>**/*Test.java</include>
