@@ -682,13 +682,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             Set<String> platformVersions = new HashSet<String>();
             // Gather all Jakarta EE platform versions
             platformVersions.addAll(getAllPlatformVersions(JAKARTA_PLATFORM_NAME, servUtil));
-            getLog().warn("platformVersions="+platformVersions);
             // Gather all Java EE platform versions
             platformVersions.addAll(getAllPlatformVersions(JAVAEE_PLATFORM_NAME, servUtil));
-            getLog().warn("platformVersions="+platformVersions);
             // Find the maximum version from all platforms
             eeVersion = findMaxVersion(platformVersions);
-            getLog().warn("eeVersion="+eeVersion);
         }
         return eeVersion;
     }
