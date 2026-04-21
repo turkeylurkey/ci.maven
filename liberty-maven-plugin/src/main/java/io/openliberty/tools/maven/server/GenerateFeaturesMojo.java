@@ -298,7 +298,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 File coreFeatureListFile = getWebSphereFeatureListFile(FEATURE_LIST_CORE);
                 featureListFileMap.put(WSCORE_FEATURELIST_KEY, coreFeatureListFile);
             } else if (OPEN_LIBERTY_PRODUCT_ID.equals(libertyGroupId)) {
-                // For open liberty pass the same file to each parameter
                 File featureListFile = getOpenFeatureListFile();
                 featureListFileMap.put(OL_FEATURELIST_KEY, featureListFile);
             } // else should not happen, just pass empty map
