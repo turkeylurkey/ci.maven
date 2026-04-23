@@ -348,13 +348,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             String messages = buildInvalidArgExceptionMessage(illegalTargets.getEELevel(), illegalTargets.getMPLevel(), eeVersion, mpVersion);
             throw new MojoExecutionException(messages);
         } catch (BinaryScannerUtil.VersionlessFeatureDetectedException versionless) {
-            String messages;
-            if (isDevMode) {
-                messages = VERSIONLESS_FEATURE_DETECTED_DEVMODE;
-            } else {
-                messages = VERSIONLESS_FEATURE_DETECTED;
-            };
-            throw new MojoExecutionException(messages);
+            throw new MojoExecutionException(isDevMode ? VERSIONLESS_FEATURE_DETECTED_DEVMODE : VERSIONLESS_FEATURE_DETECTED);
         } catch (PluginExecutionException x) {
             // throw an error when there is a problem not caught in runBinaryScanner()
             Object o = x.getCause();
