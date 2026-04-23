@@ -64,6 +64,15 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     public static final String NO_NEW_FEATURES_COMMENT = "No additional features generated";
     public static final String NO_CLASSES_DIR_WARNING = "Could not find classes directory to generate features against. Liberty features will not be generated. "
             + "Ensure your project has first been compiled.";
+    public static final String VERSIONLESS_FEATURE_DETECTED_DEVMODE = "If you would like to continue using auto-generation of features, "
+            + "please remove all versionless features from your server configuration. "
+            + "If you would like to continue using versionless features, you can turn off auto-generation "
+            + "of features by using the g hot key to toggle off auto-generation of features.";
+    public static final String VERSIONLESS_FEATURE_DETECTED = "Versionless features detected in the server configuration. "
+            + "If you would like to use auto-generation of features, "
+            + "remove all versionless features from your server configuration. "
+            + "If you would like to continue using versionless features, you cannot use "
+            + "the generate-features mojo.";
     private static final String OPEN_LIBERTY_PRODUCT_ID = "io.openliberty";
     private static final String WEBSPHERE_LIBERTY_PRODUCT_ID = "com.ibm.websphere.appserver.runtime";
 
@@ -337,6 +346,14 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_INVALID_COMBO_MESSAGE, eeVersion, mpVersion));
         } catch (BinaryScannerUtil.IllegalTargetException illegalTargets) {
             String messages = buildInvalidArgExceptionMessage(illegalTargets.getEELevel(), illegalTargets.getMPLevel(), eeVersion, mpVersion);
+            throw new MojoExecutionException(messages);
+        } catch (BinaryScannerUtil.VersionlessFeatureDetectedException versionless) {
+            String messages;
+            if (isDevMode) {
+                messages = VERSIONLESS_FEATURE_DETECTED_DEVMODE;
+            } else {
+                messages = VERSIONLESS_FEATURE_DETECTED;
+            };
             throw new MojoExecutionException(messages);
         } catch (PluginExecutionException x) {
             // throw an error when there is a problem not caught in runBinaryScanner()
