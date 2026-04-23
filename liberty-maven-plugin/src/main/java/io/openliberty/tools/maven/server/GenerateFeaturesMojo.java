@@ -68,11 +68,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             + "please remove all versionless features from your server configuration. "
             + "If you would like to continue using versionless features, you can turn off auto-generation "
             + "of features by using the g hot key to toggle off auto-generation of features.";
-    public static final String VERSIONLESS_FEATURE_DETECTED = "Versionless features detected in the server configuration. "
-            + "If you would like to use auto-generation of features, "
-            + "remove all versionless features from your server configuration. "
-            + "If you would like to continue using versionless features, you cannot use "
-            + "the generate-features mojo.";
+    public static final String VERSIONLESS_FEATURE_DETECTED = "Versionless features are detected in the server configuration. "
+            + "If you would like to use auto-generation of features, remove all versionless features from your server configuration. "
+            + "If you would like to continue using versionless features, you cannot use the generate-features mojo.";
     private static final String OPEN_LIBERTY_PRODUCT_ID = "io.openliberty";
     private static final String WEBSPHERE_LIBERTY_PRODUCT_ID = "com.ibm.websphere.appserver.runtime";
 
