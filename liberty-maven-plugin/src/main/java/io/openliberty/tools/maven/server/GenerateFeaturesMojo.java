@@ -214,6 +214,19 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         if (!generateToSrc && !serverDirectory.exists()) {
             throw new MojoExecutionException("The 'generate-features' goal requires an existing Liberty server in directory " + serverDirectory.getPath() + ". Please run the 'liberty:create' goal before 'generate-features'.");
         }
+        // Detect if there is a generate-features.xml file in src already when generating to server dir
+        if (!generateToSrc && new File(configDirectory, GENERATED_FEATURES_FILE_PATH).exists()) {
+            if (isDevMode) { // this is serious because dev mode will overwrite the generated file when copying from src
+                getLog().error("A generated-features.xml file was detected in the configured source Liberty configuration directory. " +
+                    "It will overwrite the file generated at this time. " +
+                    "You must type 's' + Enter to toggle the option to generate features to the src directory or " +
+                    "remove the generated-features.xml file in the Liberty configuration directory if you need to generate to the server directory.");
+            } else { // command line mojo just a warning that this configuration is not expected
+                getLog().warn("A generated-features.xml file was detected in the configured source Liberty configuration directory. " +
+                    "You must use the option -DgenerateToSrc=true to update the source Liberty configuration directory or " +
+                    "remove the generated-features.xml file in the source Liberty configuration directory if you intend to update the server directory.");
+            }
+        }
 
         if (useTempDirAsContext) {
             // When this parameter is true it is required that the caller has copied the config into this dir.
