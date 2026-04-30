@@ -455,7 +455,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             configDocument.writeXMLDocument(serverDirXmlFile);
         } catch (TransformerException | IOException e) {
             getLog().warn("Failed to write generated-features.xml to server directory: "
-                + serverDirXmlFile.getAbsolutePath() + ". Ensure your ID has write permission to the server configuration directory. ");
+                + serverDirXmlFile.getAbsolutePath() + ". Ensure your ID has write permission to the server configuration directory.");
             return false;
         }
         return true;
