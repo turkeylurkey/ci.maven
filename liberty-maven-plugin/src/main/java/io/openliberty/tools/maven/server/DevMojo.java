@@ -1131,7 +1131,7 @@ public class DevMojo extends LooseAppSupport {
                     // always optimize generate features on dependency change
                     // If generateToSrc is false then we must copy (below) new generated features file from temp dir to server dir
                     generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
-                    util.installFeaturesToTempDir(generateFeaturesFile, configDirectory, null, generateFeaturesSuccess);
+                    util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
                     if (!generateFeaturesSuccess) {
                         installFeature = false; // skip installing features if generate features fails
                     }
