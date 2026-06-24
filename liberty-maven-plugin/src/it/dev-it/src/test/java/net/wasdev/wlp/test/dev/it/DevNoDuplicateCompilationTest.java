@@ -84,7 +84,7 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
         int finalCompilationCount = countOccurrences(COMPILATION_SUCCESSFUL, logFile);
         int finalHotReloadCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
 
-        assertEquals("Duplicate compilation detected - compilation happened more than once",
+        assertEquals("Duplicate compilation detected - compilation happened more than once " + getLogTail(),
             initialCompilationCount, finalCompilationCount);
         assertEquals("Multiple hot reloads detected - should only reload once per change",
             initialHotReloadCount, finalHotReloadCount);

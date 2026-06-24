@@ -43,7 +43,7 @@ public class DevCompilerArgsTest extends BaseDevTest {
    public void compilerArgsTest() throws Exception {
       tagLog("##compilerArgsTest start");
       
-      assertTrue("Web app should be available", verifyLogMessageExists(WEB_APP_AVAILABLE, 60000));
+      assertTrue("Web app should be available: " + getLogTail(), verifyLogMessageExists(WEB_APP_AVAILABLE, 60000));
       
       Thread.sleep(2000);
       

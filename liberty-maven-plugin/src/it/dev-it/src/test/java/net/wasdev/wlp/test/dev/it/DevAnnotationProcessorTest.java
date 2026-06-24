@@ -39,7 +39,7 @@ public class DevAnnotationProcessorTest extends BaseDevTest {
    public void annotationProcessorTest() throws Exception {
       tagLog("##annotationProcessorTest start");
       
-      assertTrue("Web app should be available", verifyLogMessageExists(WEB_APP_AVAILABLE, 60000));
+      assertTrue("Web app should be available: " + getLogTail(), verifyLogMessageExists(WEB_APP_AVAILABLE, 60000));
       
       assertFalse("Should not have compilation errors during startup",
                   verifyLogMessageExists("variable name not initialized", 2000));
