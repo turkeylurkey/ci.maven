@@ -104,7 +104,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       // test modify a Java file in an upstream module
       modifyJarClass();
 
-      Thread.sleep(5000);
+      Thread.sleep(10000);
 
       assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
       assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200");
