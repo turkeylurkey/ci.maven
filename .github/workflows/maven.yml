@@ -9,6 +9,7 @@ on:
   pull_request:
     branches: [ main, erzatz-main ]
 # just some comments
+# more comments
 env:
   # server-config-props-it fix
   MAVEN_HOME: $(which mvn)
