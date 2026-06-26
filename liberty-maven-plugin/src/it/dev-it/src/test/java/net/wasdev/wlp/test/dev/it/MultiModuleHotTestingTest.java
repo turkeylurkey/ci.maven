@@ -39,6 +39,7 @@ public class MultiModuleHotTestingTest extends BaseMultiModuleTest {
     public void runTest() throws Exception {
         verifyStartupHotTests("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
                 "guide-maven-multimodules-ear");
+        String baseLog = getLogTail();
         clearLogFile();
         File targetWebClass = getTargetFileForModule(
                 "war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java",
@@ -60,7 +61,7 @@ public class MultiModuleHotTestingTest extends BaseMultiModuleTest {
         assertTrue(targetEarClass.lastModified() > targetLastModified);
 
         // check tests running message for jar since we expect jar unit tests to fail (after modifying)
-        assertTrue("Searchiung for Running unit tests msg:" + getLogTail(), 
+        assertTrue("SSearchiung for 'Running unit tests' msg (base.log, latest log):" + baseLog + "-new tail-" + getLogTail(), 
             verifyLogMessageExists("Running unit tests for guide-maven-multimodules-jar ...", 3000));
         
         verifyTestsRan("guide-maven-multimodules-war", "guide-maven-multimodules-ear");
