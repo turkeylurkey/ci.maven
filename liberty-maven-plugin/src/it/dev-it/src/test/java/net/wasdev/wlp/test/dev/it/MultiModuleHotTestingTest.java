@@ -62,7 +62,7 @@ public class MultiModuleHotTestingTest extends BaseMultiModuleTest {
 
         // check tests running message for jar since we expect jar unit tests to fail (after modifying)
         assertTrue("SSearchiung for 'Running unit tests' msg (base.log, latest log):" + baseLog + "-new tail-" + getLogTail(), 
-            verifyLogMessageExists("Running unit tests for guide-maven-multimodules-jar ...", 3000));
+            verifyLogMessageExists("Running unit tests for guide-maven-multimodules-jar ...", 30000)); // wait for feature gen
         
         verifyTestsRan("guide-maven-multimodules-war", "guide-maven-multimodules-ear");
 
