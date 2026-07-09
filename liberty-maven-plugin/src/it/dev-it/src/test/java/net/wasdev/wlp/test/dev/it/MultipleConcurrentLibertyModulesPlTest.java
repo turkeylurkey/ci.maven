@@ -118,7 +118,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200", logFile);
       assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200", logFile2);
 
-      //assertTrue( "Force failure, everything worked up to here!\n" + getLogTail(logFile)+getLogTail(logFile2), false);
+      assertTrue( "Force failure, everything worked up to here!\n" + getLogTail(logFile)+getLogTail(logFile2), false);
    }
 
    @AfterClass
