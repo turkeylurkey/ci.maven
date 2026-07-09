@@ -50,6 +50,7 @@ jobs:
       with:
         repository: OpenLiberty/ci.common
         path: ci.common
+        ref: ci.common-1.8.40
     - name: Checkout ci.ant
       uses: actions/checkout@v3
       with:
