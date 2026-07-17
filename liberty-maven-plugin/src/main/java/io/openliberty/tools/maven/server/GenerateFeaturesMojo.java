@@ -258,7 +258,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("generate to directory: " + generationOutputDir.getAbsolutePath());
 
         if (classFiles != null && !classFiles.isEmpty()) {
+            getLog().info("Generate features for certain class files.");
             getLog().debug("Generate features for the following class files: " + classFiles.toString());
+        } else {
+            getLog().info("Generate features for all the class files.");
         }
 
         // TODO add support for env variables
