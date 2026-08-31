@@ -1000,6 +1000,7 @@ public class DevMojo extends LooseAppSupport {
             // - liberty.* properties in project properties section
             // - changes in liberty plugin configuration in the build plugin section
             // - project dependencies changes
+            warn ("______ recompile build file");
             boolean reinstallLiberty = false; // if this gets set to true, need to throw PluginExecutionException so user can run 'clean'
             boolean restartServer = false;
             boolean createServer = false;
@@ -1084,7 +1085,9 @@ public class DevMojo extends LooseAppSupport {
                 }
                 config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", getLog());
                 oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "generate-features", getLog());
+                warn ("config=\n"+config+"\nold config=\n"+oldConfig);
                 if (!Objects.equals(config, oldConfig)) {
+                    warn ("___GenerateFeatures config modified");
                     updateGenerateFeatures = true;
                 }
 
@@ -1104,6 +1107,7 @@ public class DevMojo extends LooseAppSupport {
                         // the loose app
                         redeployApp = true;
                         modifiedDependencies = true;
+                        warn (" ___modified dependencies");
                     }
                 }
                 // update classpath for dependencies changes
