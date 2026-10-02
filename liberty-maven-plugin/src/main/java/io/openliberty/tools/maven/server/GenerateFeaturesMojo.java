@@ -295,12 +295,13 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         String eeVersion = null;
         String mpVersion = null;
         try {
-            String deployedAppFilePath = getDeployedAppFilePaths()[0];
-            if (optimize && deployedAppFilePath == null) {
+            String[] deployedAppFilePaths = getDeployedAppFilePaths();
+            if (optimize && (deployedAppFilePaths == null || deployedAppFilePaths.length == 0)) {
                 // liberty:generate-features on the command line requires that an app has been deployed
                 // In dev mode we require the app for optimize. For incremental just pass the classes on.
                 throw new MojoExecutionException(NO_APPLICATION_ERROR);
             }
+            String deployedAppFilePath = getDeployedAppFilePaths()[0];
 
             List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
             mavenProjects.addAll(upstreamProjects);
@@ -685,6 +686,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         // Single project case and multimodule case where app is in Liberty project
         String app;
         app = validateDeployedAppFilePath(project);
+        getLog().warn ("Get deployed file 1:"+ app);
         if (app != null) {
             paths.add(app);
         }
@@ -692,6 +694,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         List<MavenProject> dependencyProjects = getDependencyProjects(project);
         for (MavenProject p : dependencyProjects) {
             app = validateDeployedAppFilePath(p);
+            getLog().warn ("Get deployed file 2:"+ app);
             if (app != null) {
                 paths.add(app);
             }
