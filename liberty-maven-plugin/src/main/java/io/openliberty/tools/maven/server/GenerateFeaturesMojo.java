@@ -301,7 +301,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
                 // In dev mode we require the app for optimize. For incremental just pass the classes on.
                 throw new MojoExecutionException(NO_APPLICATION_ERROR);
             }
-            String deployedAppFilePath = getDeployedAppFilePaths()[0];
+            // String deployedAppFilePath = getDeployedAppFilePaths()[0];
 
             List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
             mavenProjects.addAll(upstreamProjects);
@@ -329,7 +329,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
                 featureListFileMap.put(WSBASE_FEATURELIST_KEY, baseFeatureListFile);
             } // else should not happen, just pass empty map
 
-            scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, deployedAppFilePath,
+            scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, deployedAppFilePaths,
                 logLocation, eeVersionArg, mpVersionArg, featureListFileMap, optimize);
         } catch (FeatureGeneratorUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
