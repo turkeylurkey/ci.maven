@@ -18,6 +18,8 @@ package io.openliberty.tools.maven.server;
 
 import java.io.File;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.common.plugins.util.DevUtil;
@@ -88,5 +90,42 @@ public abstract class LooseAppSupport extends PluginConfigSupport {
             return looseConfigFile;
         }
     }
-    
+
+    protected boolean matches(Artifact artifact, Dependency assemblyArtifact) {
+        return artifact.getGroupId().equals(assemblyArtifact.getGroupId())
+                && artifact.getArtifactId().equals(assemblyArtifact.getArtifactId())
+                && artifact.getType().equals(assemblyArtifact.getType());
+    }
+
+    protected boolean isSupportedType(String type) {
+        boolean supported = false;
+        switch (type) {
+            case "ear":
+            case "war":
+            case "rar":
+            case "eba":
+            case "esa":
+            case "liberty-assembly":
+                supported = true;
+                break;
+            default:
+                break;
+        }
+        return supported;
+    }
+
+    public static boolean isSupportedLooseAppType(String type) {
+        boolean supported = false;
+        switch (type) {
+            case "ear":
+            case "war":
+            case "liberty-assembly":
+            case "pom":
+                supported = true;
+                break;
+            default:
+                break;
+        }
+        return supported;
+    }
 }

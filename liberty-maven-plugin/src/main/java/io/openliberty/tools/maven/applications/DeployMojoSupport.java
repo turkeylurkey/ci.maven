@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -547,44 +546,6 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
                 pr.destroy();
             }
         }
-    }
-
-    protected boolean matches(Artifact artifact, Dependency assemblyArtifact) {
-        return artifact.getGroupId().equals(assemblyArtifact.getGroupId())
-                && artifact.getArtifactId().equals(assemblyArtifact.getArtifactId())
-                && artifact.getType().equals(assemblyArtifact.getType());
-    }
-    
-    protected boolean isSupportedType(String type) {
-        boolean supported = false;
-        switch (type) {
-            case "ear":
-            case "war":
-            case "rar":
-            case "eba":
-            case "esa":
-            case "liberty-assembly":
-                supported = true;
-                break;
-            default:
-                break;
-        }
-        return supported;
-    }
-
-    public static boolean isSupportedLooseAppType(String type) {
-        boolean supported = false;
-        switch (type) {
-            case "ear":
-            case "war":
-            case "liberty-assembly":
-            case "pom":
-                supported = true;
-                break;
-            default:
-                break;
-        }
-        return supported;
     }
 
 }
