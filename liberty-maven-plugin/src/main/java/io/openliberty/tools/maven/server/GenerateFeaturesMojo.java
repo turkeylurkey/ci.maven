@@ -720,6 +720,11 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
     // Examine the dependencies of this module to determine if any of them contain application resources.
     private List<MavenProject> getDependencyProjects(MavenProject currentProject) {
         List<MavenProject> results = new ArrayList<>();
+        ProjectDependencyGraph graph = session.getProjectDependencyGraph();
+        getLog().warn ("ProjectDependencyGraph= " + graph + " size=" + graph.getAllProjects().size());
+        if (graph == null || graph.getAllProjects().size() <= 1) {
+            return results; // don't check when there is only one project
+        }
         Set<Artifact> artifacts = currentProject.getArtifacts();
         if (artifacts == null) {
             return results;
