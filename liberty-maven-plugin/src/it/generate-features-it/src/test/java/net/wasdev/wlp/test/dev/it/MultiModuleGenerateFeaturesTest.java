@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Feature-Gen Changes failing this, temporarily disabling")
 public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
 
     @Override
@@ -51,14 +50,14 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     @Override
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
         String lmp = getLMPName();
-        runProcess("clean compile");
+        runProcess("clean package");
         runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features", "ear");
     }
 
     @Override
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
         String lmp = getLMPName();
-        runProcess("clean compile");
+        runProcess("clean package");
         runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features -DgenerateToSrc=true", "ear");
     }
 

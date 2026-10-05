@@ -301,7 +301,6 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
                 // In dev mode we require the app for optimize. For incremental just pass the classes on.
                 throw new MojoExecutionException(NO_APPLICATION_ERROR);
             }
-            // String deployedAppFilePath = getDeployedAppFilePaths()[0];
 
             List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
             mavenProjects.addAll(upstreamProjects);
@@ -765,7 +764,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
                 }
             }
         }
-        getLog().warn ("return default project");
+        getLog().warn ("return results:"+results);
         return results; // default to the current project
     }
 
