@@ -1084,11 +1084,14 @@ public class DevMojo extends LooseAppSupport {
                 if (!Objects.equals(config, oldConfig)) {
                     // When the config changes set this so that generate features can run
                     modifiedDependencies = true;
+                    getLog().warn ("gen-feat config changed");
                 }
 
                 List<Dependency> deps = project.getDependencies();
                 List<Dependency> oldDeps = backupProject.getDependencies();
                 if (!dependencyListsEquals(oldDeps, deps)) {
+                    getLog().warn ("dependencyLists changed");
+
                     runBoostPackage = true;
                     // detect esa dependency changes
                     if (!dependencyListsEquals(getEsaDependency(deps), getEsaDependency(oldDeps))) {
@@ -1100,6 +1103,7 @@ public class DevMojo extends LooseAppSupport {
                         // adding or removing compile dependencies (including version changes) will need
                         // to deploy loose app again to remove or add or update embedded libraries in
                         // the loose app
+                        getLog().warn ("getCompileDependency changed");
                         redeployApp = true;
                         modifiedDependencies = true;
                     }
@@ -1116,6 +1120,7 @@ public class DevMojo extends LooseAppSupport {
                     compileArtifactPaths.removeAll(backupProject.getCompileClasspathElements());
                 }
 
+                getLog().warn ("compileArtifactPaths.addAll");
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
@@ -1138,11 +1143,13 @@ public class DevMojo extends LooseAppSupport {
                 }                
                 
                 if (reinstallLiberty) {
+                    getLog().warn ("reinstall liberty");
                     project = backupProject;
                     session.setCurrentProject(backupProject);
                     util.stopServer();
                     throw new PluginExecutionException("A change in Liberty runtime installation configuration requires a restart of dev mode. Please run the 'dev' goal again for the change to take effect.");
                 } else if (restartServer) {
+                    getLog().warn ("restart server");
                     // - stop Server
                     // - create server or runBoostMojo
                     // - install feature
@@ -1155,11 +1162,14 @@ public class DevMojo extends LooseAppSupport {
                         getLog().info("Running boost:package");
                         runBoostMojo("package");
                     } else if (createServer) {
+                        getLog().warn ("create server");
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
+                        getLog().warn ("redeploy now");
                         runLibertyMojoDeploy();
                     }
                     if (installFeature) {
+                        getLog().warn ("install feat. on server");
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
                     }
                 }
@@ -1167,6 +1177,7 @@ public class DevMojo extends LooseAppSupport {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the
                     // updated project set in the session
                     getLog().debug("changes in the pom.xml are not monitored by dev mode");
+                    getLog().warn ("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
             } catch (MojoExecutionException | DependencyResolutionRequiredException e) {
