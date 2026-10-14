@@ -40,7 +40,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
         BaseDevTest.cleanUpAfterClass();
     }
 
-    @Ignore("Feature-Gen Changes failing this, temporarily disabling")
+    // @Ignore("Feature-Gen Changes failing this, temporarily disabling")
     @Test
     public void updateDependencyTest() throws Exception {
        //debugPort set as 8077
@@ -80,7 +80,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
        // Dev mode should now run the generate features mojo
        assertTrue(getLogTail(), verifyLogMessageExists(GENERATE_FEATURES, 15000)); // mojo ran
        // Dev mode will now install the features before copying them into the server dir. Look for server response before further checks
-       assertTrue(getLogTail(), verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 120000)); // could take a couple minutes
+       assertTrue(getLogTail(), verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 12000)); // could take a couple minutes
 
        assertTrue(targetGeneratedFeaturesFile.exists());
 
