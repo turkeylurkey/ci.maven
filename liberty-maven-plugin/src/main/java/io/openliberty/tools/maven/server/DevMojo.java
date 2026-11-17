@@ -1721,7 +1721,9 @@ public class DevMojo extends LooseAppSupport {
                     File generateFeaturesTmpDir = new File(buildDirectory, GENERATED_FEATURES_TEMP_DIR);
                     File generatedXmlFile = new File(generateFeaturesTmpDir, GENERATED_FEATURES_FILE_PATH);
                     File serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
-                    FileUtils.copyFile(generatedXmlFile, serverDirXmlFile);
+                    if (generatedXmlFile.exists()) {
+                        FileUtils.copyFile(generatedXmlFile, serverDirXmlFile);
+                    }
                 }
             } catch (IOException x) {
                 getLog().warn("Exception copying " + GENERATED_FEATURES_FILE_PATH + " from " +
