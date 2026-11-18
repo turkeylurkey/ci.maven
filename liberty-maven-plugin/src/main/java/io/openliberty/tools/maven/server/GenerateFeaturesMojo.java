@@ -295,16 +295,21 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         String eeVersion = null;
         String mpVersion = null;
         try {
-            String[] deployedAppFilePaths = getDeployedAppFilePaths();
-            if (optimize && (deployedAppFilePaths == null || deployedAppFilePaths.length == 0)) {
-                // liberty:generate-features on the command line requires that an app has been deployed
-                // In dev mode we require the app for optimize. For incremental just pass the classes on.
-                throw new MojoExecutionException(NO_APPLICATION_ERROR);
-            }
-
             List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
             mavenProjects.addAll(upstreamProjects);
             mavenProjects.add(project);
+            String[] deployedAppFilePaths = null;
+            if (optimize) {
+                // gather all the app archives and classes directories for optimize generate features
+                deployedAppFilePaths = getDeployedAppFilePaths(mavenProjects);
+
+                if (deployedAppFilePaths == null || deployedAppFilePaths.length == 0) {
+                    // liberty:generate-features on the command line requires that an app has been deployed
+                    // In dev mode we require the app for optimize. For incremental just pass the classes on.
+                    throw new MojoExecutionException(NO_APPLICATION_ERROR);
+                }
+            }
+
             eeVersion = getEEVersion(mavenProjects, servUtil);
             mpVersion = getMPVersion(mavenProjects, servUtil);
 
@@ -644,22 +649,58 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         return null;
     }
 
-    // Return a list containing the classes directory of the Maven projects (upstream projects and main project)
-    private Set<String> getClassesDirectories(List<MavenProject> mavenProjects) throws MojoExecutionException {
-        Set<String> dirs = new HashSet<String>();
-        String classesDirName = null;
-        getLog().debug("For feature generator gathering Java build output directories for Maven projects, size="
-                + mavenProjects.size());
-        for (MavenProject mavenProject : mavenProjects) {
-            classesDirName = getClassesDirectory(mavenProject.getBuild().getOutputDirectory());
-            if (classesDirName != null) {
-                dirs.add(classesDirName);
+    // Collect all the filenames in the Liberty server's application directories "apps" and "dropins".
+    // These are populated by the Liberty deployment mechanism like mvn liberty:deploy.
+    // e.g. ${server.config.dir}/apps/myApp.war.xml or ${server.config.dir}/dropins/myApp.war
+    // Next, look for project types that are not supported by the binary scanner and pass in the
+    // classes directory instead.
+    private String[] getDeployedAppFilePaths(List<MavenProject> mavenProjects) {
+        List<String> paths = new ArrayList<>();
+        List<String> invalidPaths = new ArrayList<>();
+        for (String appDirName : new String[] {"apps", "dropins"}) {
+            File appDir = new File(serverDirectory, appDirName);
+            if (appDir.exists() && appDir.isDirectory()) {
+                File[] appFiles = appDir.listFiles();
+                for (File app : appFiles) {
+                    if (FeatureGeneratorUtil.validateLibertyApp(app.getName())) {
+                        paths.add(app.getAbsolutePath());
+                    } else {
+                        // Note liberty app archives that are not supported by feature-gen will receive this message
+                        invalidPaths.add(app.getAbsolutePath());
+                    }
+                }
             }
         }
-        for (String s : dirs) {
-            getLog().debug("Found dir:" + s);
+        paths.addAll(getNeccessaryClassesDirectories(mavenProjects));
+        if (!invalidPaths.isEmpty()) {
+            getLog().info("This file(s) cannot be analyzed for Liberty features because the file extension is not supported: " + invalidPaths);
         }
-        return dirs;
+        return paths.toArray(new String[0]);
+    }
+
+    // For each project check whether the binary scanner supports the packaging type of the project.
+    // If it is not supported then gather the class file directory for the binary scanner.
+    private List<String> getNeccessaryClassesDirectories(List<MavenProject> mavenProjects) {
+        List<String> resultList = new ArrayList<>();
+        List<String> resultNames = new ArrayList<>();
+        getLog().debug("For feature generator gathering select Java build output directories for Maven projects, size=" + mavenProjects.size());
+        for (MavenProject mavenProject : mavenProjects) {
+            if (!FEATURE_GEN_UNSUP_TYPES.contains(mavenProject.getPackaging())) {
+                String classesDirName = getClassesDirectory(mavenProject.getBuild().getOutputDirectory());
+                if (classesDirName != null) {
+                    resultList.add(classesDirName);
+                    resultNames.add(mavenProject.getName());
+                }
+            }
+        }
+        for (String s : resultList) {
+            getLog().debug("select Java build output directories:" + s);
+        }
+
+        if (!resultNames.isEmpty()) {
+            getLog().info("The following modules are not fully supported for feature generation: " + resultNames);
+        }
+        return resultList;
     }
 
     // Check one directory and if it exists return its canonical path (or absolute path if error).
@@ -675,23 +716,6 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
             return classesDirAbsPath;
         }
         return null; // directory does not exist.
-    }
-
-    // Collect all the filenames in the Liberty server's application directories "apps" and "dropins".
-    // These are populated by the Liberty deployment mechanism like mvn liberty:deploy.
-    // e.g. ${server.config.dir}/apps/myApp.war.xml or ${server.config.dir}/dropins/myApp.war
-    private String[] getDeployedAppFilePaths() {
-        List<String> paths = new ArrayList<>();
-        for (String appDirName : new String[] {"apps", "dropins"}) {
-            File appDir = new File(serverDirectory, appDirName);
-            if (appDir.exists() && appDir.isDirectory()) {
-                File[] appFiles = appDir.listFiles();
-                for (File app : appFiles) {
-                    paths.add(app.getAbsolutePath());
-                }
-            }
-        }
-        return paths.toArray(new String[0]);
     }
 
     /**
